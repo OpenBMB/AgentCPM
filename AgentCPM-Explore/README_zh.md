@@ -493,6 +493,7 @@ python quickstart.py \
 [DeepSeek](https://www.deepseek.com/)；
 同时也受益于以下项目与数据集：
 [ASearcher](https://github.com/inclusionAI/ASearcher)、
+[WebExplorer](https://github.com/hkust-nlp/WebExplorer)、
 [NVIDIA Nemotron](https://huggingface.co/collections/nvidia/nemotron-post-training-v3)、
 [DeepDive](https://github.com/THUDM/DeepDive)、
 [WebWalker](https://aclanthology.org/2025.acl-long.508/)、

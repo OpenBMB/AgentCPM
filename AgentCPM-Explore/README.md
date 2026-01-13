@@ -488,6 +488,7 @@ This project builds upon and integrates ideas, tools, and resources from several
 [DeepSeek](https://www.deepseek.com/),
 as well as datasets such as
 [ASearcher](https://github.com/inclusionAI/ASearcher),
+[WebExplorer](https://github.com/hkust-nlp/WebExplorer),
 [NVIDIA Nemotron](https://huggingface.co/collections/nvidia/nemotron-post-training-v3),
 [DeepDive](https://github.com/THUDM/DeepDive),
 [WebWalker](https://aclanthology.org/2025.acl-long.508/),
