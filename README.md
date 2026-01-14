@@ -19,9 +19,9 @@ AgentCPM is a series of open-source large language model agents jointly develope
 
 # Model List
 
-| Model            | Download Links                                                                                                                                | Resources | Technical Report |
-|------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|
-| [AgentCPM-Explore](./AgentCPM-Explore)          | [🤗 Hugging Face](https://huggingface.co/openbmb/AgentCPM-Explore)<br> [🤖 ModelScope](https://modelscope.cn/models/OpenBMB/AgentCPM-Explore/)                  |  [AgentDock](./AgentCPM-Explore/AgentDock): An unified tool sandbox management and scheduling platform  <br> [AgentRL](./AgentCPM-Explore/AgentRL): An asynchronous agent reinforcement learning training framework  <br> [AgentToLeaP](./AgentCPM-Explore/AgentToLeaP): An one-click evaluation platform for agent tool-learning capabilities | Coming Soon |
+| Model            | Download Links                                                                                                                                | Resources | Technical Report | How to Use |
+|------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|-----------|
+| AgentCPM-Explore          | [🤗 Hugging Face](https://huggingface.co/openbmb/AgentCPM-Explore)<br> [🤖 ModelScope](https://modelscope.cn/models/OpenBMB/AgentCPM-Explore/)                  |  [AgentDock](./AgentCPM-Explore/AgentDock): An unified tool sandbox management and scheduling platform  <br> [AgentRL](./AgentCPM-Explore/AgentRL): An asynchronous agent reinforcement learning training framework  <br> [AgentToLeaP](./AgentCPM-Explore/AgentToLeaP): An one-click evaluation platform for agent tool-learning capabilities | Coming Soon | [README.md]((./AgentCPM-Explore)) |
 
 
 ## AgentCPM-Explore
