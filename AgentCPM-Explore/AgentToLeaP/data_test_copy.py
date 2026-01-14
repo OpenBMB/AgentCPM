@@ -1699,10 +1699,13 @@ class GaiaApiTest:
                     logger.info("LLM did not call any tools this time, check if it's the final answer...")
                     
                     
-                    if ("<answer>" not in model_response and "answer>" not in model_response) and model_thought:
-                        import re
-                        pattern = re.compile(r"^(<answer>.*?</answer>)|(<answer>.*?</answer>)$", re.DOTALL)
-                        match = pattern.search(model_thought.strip())
+                    # Relaxed check for answer in response
+                    answer_pattern_relaxed = re.compile(r"(?is)(?:<answer>|<answer|answer>)(.*?)(?:</answer>|</answer|/answer>)")
+                    has_answer_in_response = bool(answer_pattern_relaxed.search(model_response))
+                    
+                    
+                    if not has_answer_in_response and model_thought:
+                        match = answer_pattern_relaxed.search(model_thought.strip())
 
                         if match:
                             logger.info("Final answer detected in 'thought', executing 'transfer' operation...")
@@ -1738,17 +1741,10 @@ class GaiaApiTest:
 
                     
 
-                    has_open_tag = "<answer>" in model_response
-                    has_close_tag = "</answer>" in model_response
-                    
-                    if has_open_tag and has_close_tag:
-                        logger.info("Complete <answer>...</answer> tag pair detected, conversation completed.")
+                    # Relaxed check for complete answer block
+                    if answer_pattern_relaxed.search(model_response):
+                        logger.info("Complete <answer>...</answer>tag pair detected, conversation completed.")
                         break
-
-
-                    if has_open_tag and model_response.strip().endswith("answer>") and len(model_response) > 10:
-                         logger.info("<answer>...answer> structure detected, conversation completed.")
-                         break
                     else:
                         consecutive_no_op_count += 1
                         logger.warning(f"LLM did not provide tool or answer. Consecutive invalid responses: {consecutive_no_op_count}/{self.MAX_CONSECUTIVE_NO_OP}")
@@ -2164,9 +2160,10 @@ class GaiaApiTest:
             # [New] Check if loop exited due to "reaching maximum rounds"
             max_interactions_reached = interaction_count >= self.max_interactions
 
-            # [New] Check if last message contains answer
+            # [New] Check if last message contains answer (relaxed)
             last_message_content = full_conversation_log[-1].get("content", "") if full_conversation_log else ""
-            has_answer = "<answer>" in last_message_content or "answer>" in last_message_content
+            answer_pattern_relaxed = re.compile(r"(?is)(?:<answer>|<answer|answer>)(.*?)(?:</answer>|</answer|/answer>)")
+            has_answer = bool(answer_pattern_relaxed.search(last_message_content))
 
             final_llm_response = llm_response # Default is the last response in the loop
 
@@ -2787,8 +2784,15 @@ def extract_json(text: str) -> Any:
 def extract_last_answer(content: str, answer_schema: str="answer") -> str:
     """
     Ported from mcp_sampler.py: Extract content between the last <answer_schema>...</answer_schema> tag pair.
-   
+    Modified to support relaxed tags: answer>, <answer, </answer, /answer>
     """
+    if answer_schema == "answer":
+        pattern = r"(?is)(?:<answer>|<answer|answer>)(.*?)(?:</answer>|</answer|/answer>)"
+        matches = re.findall(pattern, content)
+        if matches:
+            return matches[-1]
+        return ""
+
     start_tag = f"<{answer_schema}>"
     end_tag = f"</{answer_schema}>"
     end_idx = content.rfind(end_tag)

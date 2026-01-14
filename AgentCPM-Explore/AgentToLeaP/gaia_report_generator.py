@@ -379,11 +379,11 @@ def extract_final_answer_advanced(answer_text: str) -> str:
     if not answer_text or not isinstance(answer_text, str): 
         return ""
 
-    pattern = r"(?s)<?answer>(.*?)<?/?answer>"
-    match = re.search(pattern, answer_text, re.IGNORECASE)
+    pattern = r"(?is)(?:<answer>|<answer|answer>)(.*?)(?:</answer>|</answer|/answer>)"
+    matches = re.findall(pattern, answer_text)
     
-    if match:
-        final_answer = match.group(1).strip()
+    if matches:
+        final_answer = matches[-1].strip()
     else:
         return None
     

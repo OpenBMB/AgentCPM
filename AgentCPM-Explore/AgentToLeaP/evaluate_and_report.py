@@ -332,14 +332,9 @@ def extract_final_answer_advanced(answer_text: str) -> str:
     if not answer_text or not isinstance(answer_text, str):
         return ""
 
-
-    pattern_std = r"(?is)<\s*answer\s*>(.*?)<\s*/\s*answer\s*>"
-    matches = re.findall(pattern_std, answer_text)
-    if matches:
-        return matches[-1].strip()
-
-    pattern_loose = r"(?is)<?\s*answer\s*>(.*?)<?\s*/?\s*answer\s*>"
-    matches = re.findall(pattern_loose, answer_text)
+    pattern = r"(?is)(?:<answer>|<answer|answer>)(.*?)(?:</answer>|</answer|/answer>)"
+    matches = re.findall(pattern, answer_text)
+    
     if matches:
         return matches[-1].strip()
 
