@@ -325,42 +325,23 @@ def question_scorer(model_answer: str, ground_truth: Any, question_context: str 
 
 def extract_final_answer_advanced(answer_text: str) -> str:
     """
-    Extract only the content within <answer>...</answer> tags.
-    Uses robust split logic to support relaxed tags and missing closing tags (truncation).
+    Extract only the content within <answer>...</answer> tags (preserve original format, no additional cleaning).
+    - If multiple <answer> blocks exist (model may give answer then correct), take the last one
+    - If no <answer> tags exist, return original text
     """
     if not answer_text or not isinstance(answer_text, str):
         return ""
 
-    start_tags = ["<answer>", "<answer", "answer>"]
-    end_tags = ["</answer>", "</answer", "/answer>"]
 
-    # 1. Find the LAST occurrence of ANY start tag
-    best_start_idx = -1
-    used_start_tag = ""
-    
-    for tag in start_tags:
-        idx = answer_text.rfind(tag)
-        if idx > best_start_idx:
-            best_start_idx = idx
-            used_start_tag = tag
-            
-    if best_start_idx != -1:
-        content_start = best_start_idx + len(used_start_tag)
-        remaining_content = answer_text[content_start:]
-        
-        # 2. Find the FIRST occurrence of ANY end tag
-        best_end_idx = -1
-        for tag in end_tags:
-            idx = remaining_content.find(tag)
-            if idx != -1:
-                if best_end_idx == -1 or idx < best_end_idx:
-                    best_end_idx = idx
-        
-        # If no end tag found, return remaining (Truncation support)
-        if best_end_idx == -1:
-            return remaining_content.strip()
-        else:
-            return remaining_content[:best_end_idx].strip()
+    pattern_std = r"(?is)<\s*answer\s*>(.*?)<\s*/\s*answer\s*>"
+    matches = re.findall(pattern_std, answer_text)
+    if matches:
+        return matches[-1].strip()
+
+    pattern_loose = r"(?is)<?\s*answer\s*>(.*?)<?\s*/?\s*answer\s*>"
+    matches = re.findall(pattern_loose, answer_text)
+    if matches:
+        return matches[-1].strip()
 
     return answer_text.strip()
 

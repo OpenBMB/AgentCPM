@@ -51,6 +51,11 @@ TOOL_END_TAG="</tool_call>"
 # --- 5. Tokenizer path ---
 TOKENIZER_PATH="" # Optional: HuggingFace tokenizer path or model name
 
+# --- Switch: Whether to use llm-as-judge for dataset results, will replace the original code scoring method ---
+USE_LLM_JUDGE="true"
+LLM_JUDGE_API_KEY=""
+LLM_JUDGE_API_BASE=""
+
 # =====================================================================================
 # --- Execution Section (usually no modification needed) ---
 # =====================================================================================

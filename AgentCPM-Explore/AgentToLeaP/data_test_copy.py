@@ -2794,48 +2794,63 @@ def extract_last_answer(content: str, answer_schema: str="answer") -> str:
     Features:
     1. Supports relaxed tags (answer>, <answer, etc.)
     2. Handles missing closing tags (returns content until end of string) - Critical for truncated outputs.
+    3. Fixed: Avoids matching start tags inside end tags (e.g., 'answer>' in '</answer>')
     """
     if not content: return ""
     
-    # Priority: Standard tags -> Relaxed tags
     if answer_schema == "answer":
-        start_tags = ["<answer>", "<answer", "answer>"]
-        end_tags = ["</answer>", "</answer", "/answer>"]
+        # Try different tag combinations in priority order
+        tag_patterns = [
+            ("<answer>", "</answer>"),   # Standard format
+            ("<answer>", "</answer"),    # Missing >
+            ("<answer>", "/answer>"),    # Missing <
+            ("<answer", "</answer>"),    # Start tag missing >
+            ("<answer", "</answer"),     # Both missing
+            ("answer>", "</answer>"),    # Start tag missing <
+            ("answer>", "</answer"),     # Start missing <, end missing >
+            ("answer>", "/answer>"),     # Both missing <
+        ]
     else:
-        start_tags = [f"<{answer_schema}>"]
-        end_tags = [f"</{answer_schema}>"]
-
-    # 1. Find the LAST occurrence of ANY start tag
-    best_start_idx = -1
-    used_start_tag = ""
+        tag_patterns = [(f"<{answer_schema}>", f"</{answer_schema}>")]
     
-    for tag in start_tags:
-        # Use rfind to find the last occurrence
-        idx = content.rfind(tag)
-        if idx > best_start_idx:
-            best_start_idx = idx
-            used_start_tag = tag
+    # Try each tag pattern
+    for start_tag, end_tag in tag_patterns:
+        # Search for start tag from end to beginning
+        search_pos = len(content)
+        while search_pos > 0:
+            start_idx = content.rfind(start_tag, 0, search_pos)
+            if start_idx == -1:
+                break
             
-    if best_start_idx == -1:
-        return ""
-        
-    content_start = best_start_idx + len(used_start_tag)
-    remaining_content = content[content_start:]
-    
-    # 2. Find the FIRST occurrence of ANY end tag in the remaining content
-    best_end_idx = -1
-    
-    for tag in end_tags:
-        idx = remaining_content.find(tag)
-        if idx != -1:
-            if best_end_idx == -1 or idx < best_end_idx:
-                best_end_idx = idx
+            # Check if this start tag is part of an end tag
+            # e.g., '</answer>' contains 'answer>', need to exclude
+            is_inside_end_tag = False
+            for et in ["</answer>", "</answer", "/answer>"]:
+                et_idx = content.rfind(et, 0, start_idx + len(start_tag))
+                if et_idx != -1 and et_idx <= start_idx < et_idx + len(et):
+                    is_inside_end_tag = True
+                    break
             
-    # If no end tag found, return everything until the end (Robust for truncation)
-    if best_end_idx == -1:
-        return remaining_content.strip()
+            if is_inside_end_tag:
+                # Continue searching forward
+                search_pos = start_idx
+                continue
+            
+            # Found a valid start tag
+            content_start = start_idx + len(start_tag)
+            remaining_content = content[content_start:]
+            
+            # Search for end tag
+            end_idx = remaining_content.find(end_tag)
+            
+            if end_idx != -1:
+                # Found complete answer block
+                return remaining_content[:end_idx].strip()
+            else:
+                # No end tag, return content until end of string (handle truncation)
+                return remaining_content.strip()
         
-    return remaining_content[:best_end_idx].strip()
+    return ""
 
 
 def update_history_with_procedure(historyx: HistoryX, procedure_obj: Procedure) -> HistoryX:

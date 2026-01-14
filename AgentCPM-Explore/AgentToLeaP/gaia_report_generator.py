@@ -375,47 +375,16 @@ def load_test_results(result_dir: str) -> Dict[str, List[Dict[str, Any]]]:
     return results_grouped
 
 def extract_final_answer_advanced(answer_text: str) -> str:
-    """
-    Extract final answer from model output using robust split logic.
-    Handles relaxed tags and missing closing tags (truncated output).
-    """
+    """Extract final answer from model output"""
     if not answer_text or not isinstance(answer_text, str): 
         return ""
 
-    start_tags = ["<answer>", "<answer", "answer>"]
-    end_tags = ["</answer>", "</answer", "/answer>"]
-
-    # 1. Find the LAST occurrence of ANY start tag
-    best_start_idx = -1
-    used_start_tag = ""
+    pattern = r"(?s)<?answer>(.*?)<?/?answer>"
+    match = re.search(pattern, answer_text, re.IGNORECASE)
     
-    for tag in start_tags:
-        idx = answer_text.rfind(tag)
-        if idx > best_start_idx:
-            best_start_idx = idx
-            used_start_tag = tag
-    
-    final_answer = None
-    
-    if best_start_idx != -1:
-        content_start = best_start_idx + len(used_start_tag)
-        remaining_content = answer_text[content_start:]
-        
-        # 2. Find the FIRST occurrence of ANY end tag
-        best_end_idx = -1
-        for tag in end_tags:
-            idx = remaining_content.find(tag)
-            if idx != -1:
-                if best_end_idx == -1 or idx < best_end_idx:
-                    best_end_idx = idx
-        
-        # If no end tag found, take everything (Truncation support)
-        if best_end_idx == -1:
-            final_answer = remaining_content.strip()
-        else:
-            final_answer = remaining_content[:best_end_idx].strip()
-            
-    if not final_answer:
+    if match:
+        final_answer = match.group(1).strip()
+    else:
         return None
     
     prefix_match = re.match(r'^\s*[A-D][\.\)\-]\s*', final_answer, re.IGNORECASE)
