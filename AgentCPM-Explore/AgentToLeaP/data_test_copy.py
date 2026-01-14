@@ -2809,6 +2809,7 @@ def extract_last_answer(content: str, answer_schema: str="answer") -> str:
             ("answer>", "</answer>"),    # Start tag missing <
             ("answer>", "</answer"),     # Start missing <, end missing >
             ("answer>", "/answer>"),     # Both missing <
+            ("answer>", "answer>"),      # Both missing < and /
         ]
     else:
         tag_patterns = [(f"<{answer_schema}>", f"</{answer_schema}>")]
