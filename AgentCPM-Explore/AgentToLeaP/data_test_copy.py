@@ -151,6 +151,8 @@ For each function call, return a json object with function name and arguments wi
 <tool_call>
 {{"name": <function-name>, "arguments": <args-json-object>}}
 </tool_call>
+
+Current date: {current_date}
 """
 
 
@@ -1426,7 +1428,11 @@ class GaiaApiTest:
             tools_description_str = self._format_tools_for_prompt()
             self.all_tools = original_all_tools 
             
-            system_message = SYSTEM_PROMPT_QWEN.format(tools_description=tools_description_str)
+            current_date = datetime.now().strftime("%Y-%m-%d")
+            system_message = SYSTEM_PROMPT_QWEN.format(
+                tools_description=tools_description_str,
+                current_date=current_date
+            )
 
             if context:
                 system_message += f"\n\nContext information:\n{context}"
