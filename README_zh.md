@@ -44,6 +44,53 @@ AgentCPM 是由[清华大学自然语言处理实验室（THUNLP）](https://nlp
 https://github.com/user-attachments/assets/f8487889-d17a-447e-9aef-2608f4c84a83
 
 
+### QuickStart
+
+- **多模型多工具协作环境部署**：首先启动 AgentDock 工具沙盒平台，提供统一的 MCP 工具服务。和 API 模型协作时，配置模型的 `BASE_URL` 和 `API_KEY`；和本地 host 的模型协作时，确保模型服务可访问。在 `config.toml` 文件中配置工具所需的使用参数。
+
+- **启动环境**：开箱即用，一键启动。AgentDock 统一工具沙盒管理平台支持 `docker compose up -d` 一键启动所有服务，包括管理面板、数据库和工具节点。
+
+- **启动执行**：通过 QuickStart 脚本快速体验框架的核心能力，无需繁琐配置即可运行一个完整的 Agent 任务。
+
+0. **准备评测环境 (推荐)**：
+   我们提供了一个预装好所有评测依赖的 Docker 镜像，建议直接拉取镜像并在容器内运行：
+   
+   ```bash
+   # 1. 进入项目目录
+   cd AgentCPM-Explore
+   
+   # 2. 拉取镜像
+   docker pull yuyangfu/agenttoleap-eval:v1.0
+   
+   # 3. 启动容器 (请根据实际路径修改 -v 参数)
+   docker run -dit --name agenttoleap --gpus all --network host -v $(pwd):/workspace yuyangfu/agenttoleap-eval:v1.0
+   
+   # 4. 进入容器
+   docker exec -it agenttoleap /bin/bash
+   cd /workspace
+   ```
+
+1. **配置与运行**：
+   打开 `quickstart.py`，在 `[USER CONFIGURATION]` 区域进行简单配置：
+   
+   - **自定义任务**：修改 `QUERY` 变量为您想要测试的指令（例如："查一下昨晚的欧冠比赛结果"）。
+   - **模型信息**：填入您的 LLM `API_KEY`、`MODEL_NAME` 和 `BASE_URL`。
+   - **工具服务**：设置 `MANAGER_URL` 为您的 MCP 工具服务器地址（例如 `http://localhost:8000`，请确保该服务已先行启动）。
+
+   配置完成后，直接运行：
+
+   ```bash
+   python quickstart.py
+   ```
+
+   *脚本会自动创建一个演示任务（默认查询今日的ArXiv计算机科学论文），生成执行脚本并启动评测流程。*
+
+2. **查看结果**：
+   运行完成后，结果将保存在 `outputs/quickstart_results/` 目录下。您可以查看 `dialog.json` 获取完整的交互轨迹（包含工具调用、思维链等）。
+
+   *注：QuickStart模式默认跳过了自动评分步骤，仅用于展示Agent执行能力。*
+
+
 # 开源协议
 
 * 本仓库开源的代码遵照 [Apache-2.0](./LICENSE) 协议。

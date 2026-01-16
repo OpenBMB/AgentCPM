@@ -44,6 +44,54 @@ Demo examples (speed up):
 https://github.com/user-attachments/assets/f2b3bb20-ccd5-4b61-8022-9f6e90992baa
 
 
+### QuickStart
+
+- **Multi-model, multi-tool collaborative environment setup**: First, start the AgentDock tool sandbox platform to provide unified MCP (Model Context Protocol) tool services. When working with API-based models, configure the model’s `BASE_URL` and `API_KEY`. When working with locally hosted models, ensure the model service is accessible. Configure the required tool parameters in the `config.toml` file.
+
+- **Launch the environment**: Out of the box, one-click startup. The AgentDock unified tool sandbox platform supports launching all services with a single `docker compose up -d` command, including the management dashboard, database, and tool nodes.
+
+- **Run execution**: Quickly experience the core capabilities of the framework via the QuickStart script, allowing you to run a complete Agent task without complex configuration.
+
+0. **Prepare Evaluation Environment (Recommended)**:  
+   We provide a Docker image with all evaluation dependencies pre-installed. It is recommended to pull the image and run it directly:
+
+   ```bash
+   # 1. Enter the project folder
+   cd AgentCPM-Explore
+   
+   # 2. Pull the image
+   docker pull yuyangfu/agenttoleap-eval:v1.0
+   
+   # 3. Start the container (Adjust the -v path as needed)
+   docker run -dit --name agenttoleap --gpus all --network host -v $(pwd):/workspace yuyangfu/agenttoleap-eval:v1.0
+   
+   # 4. Enter the container
+   docker exec -it agenttoleap /bin/bash
+   cd /workspace
+   ```
+
+1. **Configure and run**:  
+  Open `quickstart.py` and make simple configurations in the `[USER CONFIGURATION]` section:
+
+  - **Custom task**: Modify the `QUERY` variable to the instruction you want to test (e.g., “Check the results of last night’s UEFA Champions League matches”).
+  - **Model information**: Provide your LLM `API_KEY`, `MODEL_NAME`, and `BASE_URL`.
+  - **Tool service**: Set `MANAGER_URL` to the address of your MCP tool server (e.g., `http://localhost:8000`; make sure the service is already running).
+
+  After configuration, run:
+
+  ```bash
+  python quickstart.py
+  ```
+
+  The script will automatically create a demo task (by default, querying today’s arXiv computer science papers), generate the execution workflow, and start the evaluation process.
+
+2. **View Results**
+
+  After execution completes, results will be saved under the `outputs/quickstart_results/` directory. You can inspect `dialog.json` to obtain the full interaction trace, including tool calls and reasoning chains.
+
+  *Note: In QuickStart mode, automatic scoring is skipped by default and is intended only to demonstrate the Agent’s execution capabilities.*
+
+
 
 # License
 
