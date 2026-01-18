@@ -94,22 +94,39 @@ docker pull sailaoda/agentdock-node-explore:latest
 
 Build images locally from source code.
 
-**1. Configure Environment**
+#### 🌍 Global Build (Default)
+
+For users **outside China**, use the default Dockerfiles with official mirrors:
 
 ```bash
+# 1. Configure environment
 cp .env.example .env
 # Edit .env file with your MongoDB credentials
-```
 
-**2. Build and Start Services**
-
-```bash
-# Build all images locally
+# 2. Build and start services
 docker compose build
-
-# Start services
 docker compose up -d
 ```
+
+#### 🇨🇳 China Build (Aliyun Mirrors)
+
+For users **in China**, use the `.cn` Dockerfiles with Aliyun mirrors for faster builds:
+
+```bash
+# 1. Configure environment
+cp .env.example .env
+# Edit .env file with your MongoDB credentials
+
+# 2. Build and start services (using China mirrors)
+docker compose -f docker-compose.cn.yml build
+docker compose -f docker-compose.cn.yml up -d
+```
+
+**Files for China Build:**
+- `master/dockerfile.cn`
+- `agentdock-node-full/dockerfile.cn`
+- `agentdock-node-explore/Dockerfile.cn`
+- `docker-compose.cn.yml`
 
 **3. Access Dashboard**
 

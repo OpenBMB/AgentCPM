@@ -1,10 +1,7 @@
 # ============================================================
-# AgentDock Node Explore - Explore MCP Server
+# AgentDock Node Explore - China Build (with Aliyun mirrors)
 # ============================================================
-# Advanced MCP server for search and web exploration:
-# - Jina API web content extraction
-# - Google SERP search integration
-# - File reading and code execution
+# Explore MCP Server with Chinese mirror acceleration
 # 
 # Version: 1.0.0
 # ============================================================
@@ -16,14 +13,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 LABEL maintainer="AgentDock"
 LABEL version="1.0.0"
-LABEL description="AgentDock Node Explore - Search & Analysis MCP Server"
+LABEL description="AgentDock Node Explore - Search & Analysis MCP Server (China Build)"
 
 WORKDIR /app
 
-# Note: Using default Ubuntu sources (proxy configured in buildx)
-# For China users building locally, you can uncomment the following:
-# RUN sed -i 's/ports.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
-#     sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
+# Configure apt mirror (Aliyun for China)
+RUN sed -i 's/ports.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
 
 COPY . /app/
 
@@ -70,12 +66,11 @@ RUN conda create -n mcp-agent python=3.12 -y && \
 
 SHELL ["/bin/bash", "-c"]
 
-# Note: Using default PyPI (proxy configured in buildx)
-# For China users building locally, uncomment below:
-# RUN mkdir -p ~/.pip && \
-#     echo '[global]' > ~/.pip/pip.conf && \
-#     echo 'index-url = https://mirrors.aliyun.com/pypi/simple/' >> ~/.pip/pip.conf && \
-#     echo 'trusted-host = mirrors.aliyun.com' >> ~/.pip/pip.conf
+# Configure pip mirror (Aliyun for China)
+RUN mkdir -p ~/.pip && \
+    echo '[global]' > ~/.pip/pip.conf && \
+    echo 'index-url = https://mirrors.aliyun.com/pypi/simple/' >> ~/.pip/pip.conf && \
+    echo 'trusted-host = mirrors.aliyun.com' >> ~/.pip/pip.conf
 
 # Install mcp-agent base dependencies
 RUN source /opt/conda/bin/activate mcp-agent && \

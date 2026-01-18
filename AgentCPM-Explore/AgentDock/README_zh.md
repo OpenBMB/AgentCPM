@@ -107,22 +107,39 @@ docker pull sailaoda/agentdock-node-explore:latest
 
 从源代码本地构建镜像。
 
-**1. 环境配置**
+#### 🌍 海外用户（Global Build）
+
+使用默认 Dockerfile，从官方源下载依赖：
 
 ```bash
+# 1. 环境配置
 cp .env.example .env
-# 根据需要编辑 .env 文件中的 MongoDB 相关配置
-```
+# 编辑 .env 文件
 
-**2. 构建并启动服务**
-
-```bash
-# 本地构建所有镜像
+# 2. 构建并启动服务
 docker compose build
-
-# 启动服务
 docker compose up -d
 ```
+
+#### 🇨🇳 国内用户（China Build）
+
+使用 `.cn` 后缀的 Dockerfile，从阿里云镜像源加速下载：
+
+```bash
+# 1. 环境配置
+cp .env.example .env
+# 编辑 .env 文件
+
+# 2. 构建并启动服务（使用国内镜像源）
+docker compose -f docker-compose.cn.yml build
+docker compose -f docker-compose.cn.yml up -d
+```
+
+**国内构建使用的文件：**
+- `master/dockerfile.cn`
+- `agentdock-node-full/dockerfile.cn`
+- `agentdock-node-explore/Dockerfile.cn`
+- `docker-compose.cn.yml`
 
 **3. 访问管理界面**
 

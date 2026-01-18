@@ -1,12 +1,11 @@
 # ============================================================
-# AgentDock - Docker Hub Pull Configuration
+# AgentDock - China Build Configuration (with Aliyun mirrors)
 # ============================================================
-# This compose file uses pre-built images from Docker Hub.
-# No local build required - just pull and run!
+# 使用阿里云镜像源加速构建，适合中国大陆用户
 #
 # Usage:
-#   1. Copy .env.example to .env and configure
-#   2. docker compose -f docker-compose-hub.yml up -d
+#   docker compose -f docker-compose.cn.yml build
+#   docker compose -f docker-compose.cn.yml up -d
 #
 # Version: 1.0.0
 # ============================================================
@@ -16,14 +15,17 @@ name: agentdock
 services:
   # --------------------------------------------------------
   # AgentDock Manager - Core orchestration service
-  # Manages container lifecycle, health checks, and API routing
   # --------------------------------------------------------
   agentdock-manager:
-    image: sailaoda/agentdock-manager:1.0.1
+    image: agentdock-manager:cn
     container_name: agentdock-manager
+    build:
+      context: ./master
+      dockerfile: dockerfile.cn
     ports:
-      - "8080:8080"  # Dashboard and API
+      - "8080:8080"
     volumes:
+      - ./master:/app
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       MONGO_HOST: agentdock-mongodb
@@ -74,22 +76,24 @@ services:
 
   # --------------------------------------------------------
   # AgentDock Node - Full-feature MCP server
-  # Provides comprehensive MCP tool capabilities
   # --------------------------------------------------------
   agentdock-node-full:
-    image: sailaoda/agentdock-node-full:latest
+    image: agentdock-node:full-cn
     container_name: agentdock-node-full
+    build:
+      context: ./agentdock-node-full
+      dockerfile: dockerfile.cn
     ports:
-      - "8092:8088"  # Streamable-HTTP MCP service port
-      - "8004:8000"  # API port
+      - "8092:8088"
+      - "8004:8000"
     environment:
       - PYTHONPATH=/app
       - DOCKER_HOST_IP=host.docker.internal
       - NO_PROXY=localhost,127.0.0.1
       - no_proxy=localhost,127.0.0.1
     volumes:
-      - agentdock-node-full-data:/app/data
-      - agentdock-node-full-filesystem:/app/filesystem
+      - ./agentdock-node-full/data:/app/data
+      - ./agentdock-node-full/filesystem:/app/filesystem
     extra_hosts:
       - "host.docker.internal:host-gateway"
     deploy:
@@ -103,26 +107,27 @@ services:
 
   # --------------------------------------------------------
   # AgentDock Node - Explore MCP server
-  # Advanced capabilities for search, web exploration and analysis
   # --------------------------------------------------------
   agentdock-node-explore:
-    image: sailaoda/agentdock-node-explore:latest
+    image: agentdock-node:explore-cn
     container_name: agentdock-node-explore
+    build:
+      context: ./agentdock-node-explore
+      dockerfile: Dockerfile.cn
     ports:
-      - "8102:8088"  # Streamable-HTTP MCP service port
-      - "8014:8000"  # API port
+      - "8102:8088"
+      - "8014:8000"
     environment:
       - PYTHONPATH=/app
       - DOCKER_HOST_IP=host.docker.internal
       - NO_PROXY=localhost,127.0.0.1
       - no_proxy=localhost,127.0.0.1
-      # API Keys (inject via environment variables)
       - JINA_API_KEY=${JINA_API_KEY:-}
       - GOOGLE_SERP_API_KEY=${GOOGLE_SERP_API_KEY:-}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - agentdock-node-explore-data:/app/data
-      - agentdock-node-explore-filesystem:/app/filesystem
+      - ./agentdock-node-explore/data:/app/data
+      - ./agentdock-node-explore/filesystem:/app/filesystem
     extra_hosts:
       - "host.docker.internal:host-gateway"
     deploy:
@@ -136,24 +141,3 @@ services:
 
 volumes:
   agentdock-dbfiles:
-  agentdock-node-full-data:
-  agentdock-node-full-filesystem:
-  agentdock-node-explore-data:
-  agentdock-node-explore-filesystem:
-
-# ============================================================
-# Quick Start Guide (Docker Hub)
-# ============================================================
-# 
-# 1. Create .env file:
-#    cp .env.example .env
-#    # Edit .env with your credentials
-# 
-# 2. Pull and start services:
-#    docker compose -f docker-compose-hub.yml pull
-#    docker compose -f docker-compose-hub.yml up -d
-# 
-# 3. Access dashboard:
-#    http://localhost:8080
-# 
-# ============================================================

@@ -1,125 +1,130 @@
+# ============================================================
+# AgentDock Node - China Build (with Chinese mirrors)
+# ============================================================
 FROM ubuntu:22.04
 
-# Prevent interactive prompts during installation
+# 避免安装过程中的交互式提示
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Set working directory
+# 设置工作目录
 WORKDIR /app
 
 COPY . /app/
 
-# Note: Using default Ubuntu sources
-# For China users, use dockerfile.cn with Aliyun mirrors
+# 更换为中国镜像源 (Aliyun)
+RUN sed -i 's/ports.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
 
-# Install base tools
+# 安装基本工具
 RUN apt-get update && apt-get install -y \
     git \
     curl \
     wget \
     bash 
 
-# Install Miniconda (architecture-aware)
+# 检测架构并安装适当版本的Miniconda
 RUN ARCH=$(uname -m) && \
     if [ "$ARCH" = "x86_64" ]; then \
         wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh; \
     elif [ "$ARCH" = "aarch64" ] || [ "$ARCH" = "arm64" ]; then \
         wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-aarch64.sh -O /tmp/miniconda.sh; \
     else \
-        echo "Unsupported architecture: $ARCH"; exit 1; \
+        echo "不支持的架构: $ARCH"; exit 1; \
     fi && \
     bash /tmp/miniconda.sh -b -p /opt/conda && \
     rm /tmp/miniconda.sh
 
 ENV PATH="/opt/conda/bin:$PATH"
 
-# Configure conda
+# 配置conda
 RUN conda init bash && \
     echo "conda activate mcp-agent" >> ~/.bashrc
 
-# Install nodejs and npm (using system package manager)
+# 安装nodejs和npm（使用系统包管理器代替nvm）
 RUN apt-get install -y \
     nodejs \
     npm
 
-# Update to latest nodejs version
+# 确保使用最新版本的nodejs和npm
 RUN npm install -g n && \
     n stable && \
     hash -r
 
-# Note: Using default npm registry
-# For China users, use dockerfile.cn with npmmirror
+# 配置npm使用淘宝镜像源
+RUN npm config set registry https://registry.npmmirror.com
 
-# Install pnpm
+# 安装pnpm
 RUN npm install -g pnpm
 
-# Install mcp-sdk
+# 安装mcp-sdk
 RUN npm install -g @modelcontextprotocol/sdk
 
-# Install ts-node
+# 安装ts-node
 RUN npm install -g typescript ts-node
 
-# Install uv
-RUN pip3 install uv
+# 安装uv (使用清华源)
+RUN pip3 install uv -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-# Create and configure mcp-agent conda environment
+# 创建并配置mcp-agent conda环境
 RUN conda create -n mcp-agent python=3.13 -y && \
     echo 'conda activate mcp-agent' >> ~/.bashrc
 
-# Install base dependencies
+# 配置pip使用阿里云镜像
+RUN mkdir -p ~/.pip && \
+    echo '[global]' > ~/.pip/pip.conf && \
+    echo 'index-url = https://mirrors.aliyun.com/pypi/simple/' >> ~/.pip/pip.conf && \
+    echo 'trusted-host = mirrors.aliyun.com' >> ~/.pip/pip.conf
+
+# 安装基础依赖
 SHELL ["/bin/bash", "-c"]
 RUN source /opt/conda/bin/activate mcp-agent && \
     pip install python-dotenv rich asyncio fastapi uvicorn docker httpx PyYAML motor gunicorn beanie psutil tenacity jinja2 json5 mcp openai jsonschema toml
 
 
-# Create mcp-executor environment
+# 创建mcp-executor环境
 RUN conda create -n mcp-executor python=3.10 -y
 
-# Create necessary directories
+# 创建必要的目录
 RUN mkdir -p /app/code_storage && \
     mkdir -p /app/filesystem && \
     mkdir -p /app/shared_input
 
-# Configure mcp_code_executor server
+# 配置mcp_code_executor服务器
 RUN source /opt/conda/bin/activate mcp-agent && \
     cd /app/mcp_servers/mcp_code_executor && \
     npm install && \
     npm run build
 
-# Install mcp-server-commands
+# 安装mcp-server-commands
 RUN npm install -g mcp-server-commands
 
-# Install filesystem server
+# 安装filesystem服务器
 RUN npm install -g @modelcontextprotocol/server-filesystem
 
-# Configure nlp-search-infra-server
+# 配置nlp-search-infra-server
 RUN source /opt/conda/bin/activate mcp-agent && \
     cd /app/mcp_servers/nlp-search-infra-server && \
     pip install -r requirements.txt
 
-# RUN npm install @playwright/test
-
-# RUN npx playwright install
-
-# Copy GAIA folder to filesystem server accessible directory
-RUN cp -r /app/data/GAIA /app/filesystem/ || echo "GAIA folder not found, will check at startup"
+# 将GAIA文件夹复制到filesystem服务器可访问的目录
+RUN cp -r /app/data/GAIA /app/filesystem/ || echo "GAIA文件夹不存在，将在启动时检查"
 
 
-# Set environment variables
+# 设置环境变量
 ENV PYTHONPATH=/app:$PYTHONPATH
 ENV CODE_STORAGE_DIR=/app/code_storage
 ENV CONDA_ENV_NAME=mcp-executor
 ENV UV_PATH=/usr/local/bin/uv
 
-# Create log directory
+# 创建日志目录
 RUN mkdir -p /app/mcp_server_logs
 
-# Copy entrypoint script
+# 创建启动脚本
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-# Expose ports
+# 暴露端口
 EXPOSE 8000
 
-# Use entrypoint script
+# 使用启动脚本作为ENTRYPOINT
 ENTRYPOINT ["docker-entrypoint.sh"]
-
