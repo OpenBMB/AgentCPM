@@ -2,13 +2,15 @@
 
 <a href='https://huggingface.co/openbmb/AgentCPM-Report'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-AgentCPM--Report-blue'>
 <a href='https://huggingface.co/openbmb/AgentCPM-Report-gguf'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-AgentCPM--Report--gguf-blue'>
-<a href='https://github.cpm/OpenBMB/UltraRAG'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-AgentCPM--Report--gguf-blue'>
+<a href='https://github.cpm/OpenBMB/UltraRAG'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20GitHub-UltraRAG-blue'>
 
 <p align="center">
 
-| <a href="./README_zh.md"><b>简体中文</b></a> |
-| :---: |
-| <b>English</b> |
+| 
+<a href="./README_zh.md"><b>简体中文</b>
+|
+<b>English</b> 
+|
 
 </p>
 
