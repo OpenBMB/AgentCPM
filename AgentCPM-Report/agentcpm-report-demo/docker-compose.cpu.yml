@@ -106,7 +106,7 @@ services:
   # CPU-only UltraRAG UI (chat-only)
   ultrarag-ui:
     build: &ultrarag_build_cpu
-      context: ..
+      context: ../UltraRAG
       dockerfile: Dockerfile.v3-dev
       args:
       # Debian APT mirror (optional): aliyun | tuna | empty(default)

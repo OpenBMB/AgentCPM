@@ -36,7 +36,7 @@ services:
   # Default: run a minimal pipeline smoke test (same as UltraRAG/Dockerfile CMD)
   ultrarag:
     build: &ultrarag_build
-      context: ..
+      context: ../UltraRAG
       dockerfile: Dockerfile.v3-dev
       args:
         # Debian APT mirror (optional): aliyun | tuna | empty(default)
