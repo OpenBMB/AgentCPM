@@ -1,8 +1,10 @@
 # AgentCPM-Report: Gemini-2.5-pro-DeepResearch Level Local DeepResearch
 
+<p align="center">
 <a href='https://huggingface.co/openbmb/AgentCPM-Report'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-AgentCPM--Report-yellow'>
 <a href='https://huggingface.co/openbmb/AgentCPM-Report-GGUF'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-AgentCPM--Report--GGUF-yellow'>
 <a href='https://github.com/OpenBMB/UltraRAG'><img src='https://img.shields.io/badge/GitHub-UltraRAG-blue?logo=github'>
+</p>
 
 <p align="center">
     [<a href="./README_zh.md"><b>中文</b></a> | <b>English</b>]
