@@ -122,10 +122,17 @@ https://github.com/user-attachments/assets/f2b3bb20-ccd5-4b61-8022-9f6e90992baa
 
 
 ### Demo
-Here is a YouTube video or a Bilibili video link.
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=d5XWONt0PWo"><img src="https://img.youtube.com/vi/d5XWONt0PWo/0.jpg", width=70%></a>
+</div>
+
 
 ### QuickStart
 #### Docker Deployment
+<div align="center">
+  <a href="https://www.youtube.com/watch?v=ze8qJRrass4"><img src="https://img.youtube.com/vi/ze8qJRrass4/0.jpg", width=70%></a>
+</div>
+
 We provide a minimal one-click docker-compose deployment integrated into UltraRAG, which includes the RAG framework UltraRAG2.0, the model inference framework vllm, and the Milvus vector database. If you want CPU inference, we also provide a llama.cpp-based version for GGUF-format models—simply replace `docker-compose.yml` with `docker-compose.cpu.yml`.
 
 ``` bash
