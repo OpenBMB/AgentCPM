@@ -293,6 +293,9 @@ GOOGLE_SERP_API_KEY=your_serp_key # Google 搜索 API
 ```
 
 ## QuickStart
+- **QuickStart教程视频（配置 & 跑通）**：<https://www.bilibili.com/video/BV1T2kMBGE8L/?spm_id_from=333.337.search-card.all.click>
+
+    *建议在我们提供的评测 Docker 容器内跟跑，避免环境差异。*
 
 - **多模型多工具协作环境部署**：首先启动 AgentDock 工具沙盒平台，提供统一的 MCP 工具服务。和 API 模型协作时，配置模型的 `BASE_URL` 和 `API_KEY`；和本地 host 的模型协作时，确保模型服务可访问。在 `config.toml` 文件中配置工具所需的使用参数。
 
