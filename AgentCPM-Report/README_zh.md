@@ -50,7 +50,7 @@ docker-compose -f docker-compose.yml logs -f ultrarag-ui
 
 （可选）您可以从[Wiki2024](https://modelscope.cn/datasets/UltraRAG/UltraRAG_Benchmark/tree/master/corpus/wiki24) 导入Wiki2024作为写作数据库。
 
-您可以从[教程](https://ultrarag.openbmb.cn/pages/cn/pipeline/agentcpm-report) 中阅读更多关于AgentCPM-Report的教程。
+您可以从[教程](https://ultrarag.openbmb.cn/pages/cn/demo/deepresearch) 中阅读更多关于AgentCPM-Report的教程。
 
 ### 代码结构
 ```
