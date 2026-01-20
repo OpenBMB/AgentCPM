@@ -1395,7 +1395,7 @@ class GaiaApiTest:
         trace_oid = _stable_oid(f"trace:{task_id}:{traj_id}")
    
 
-        self.MAX_CONSECUTIVE_NO_OP = 3 
+        self.MAX_CONSECUTIVE_NO_OP = 20 
         self.NO_OP_PROMPT = "You didn't provide a tool call or a final answer. Please reassess your plan, take the next step, or provide the final answer in `<answer></answer>` tags."
 
         self.NO_OP_FORCE_SYSTEM_PROMPT = (
@@ -1720,11 +1720,6 @@ class GaiaApiTest:
                             model_response = answer_block
                             model_thought = model_thought.replace(answer_block, "").strip()
 
-                    # [Modified] Extract clean answer content (strip tags) before saving to history
-                    extracted_clean_answer = extract_last_answer(model_response)
-                    if extracted_clean_answer:
-                         model_response = extracted_clean_answer
-
                     final_assistant_message = {"role": "assistant", "content": model_response}
                     if model_thought:
                         final_assistant_message["thought"] = model_thought
@@ -1754,9 +1749,8 @@ class GaiaApiTest:
                     
 
                     # Relaxed check for complete answer block
-                    # We check extracted_clean_answer because model_response is now stripped
-                    if has_answer_in_response or extracted_clean_answer:
-                        logger.info("Complete <answer>...</answer>tag pair detected (and stripped), conversation completed.")
+                    if has_answer_in_response or bool(extract_last_answer(model_response)):
+                        logger.info("Complete <answer>...</answer> tag pair detected, conversation completed.")
                         break
                     else:
                         consecutive_no_op_count += 1

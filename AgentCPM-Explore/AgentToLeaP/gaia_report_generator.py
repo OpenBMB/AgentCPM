@@ -375,16 +375,65 @@ def load_test_results(result_dir: str) -> Dict[str, List[Dict[str, Any]]]:
     return results_grouped
 
 def extract_final_answer_advanced(answer_text: str) -> str:
-    """Extract final answer from model output"""
+    """Extract final answer from model output using robust split logic."""
     if not answer_text or not isinstance(answer_text, str): 
         return ""
 
-    pattern = r"(?s)<?answer>(.*?)<?/?answer>"
-    match = re.search(pattern, answer_text, re.IGNORECASE)
+    content = answer_text
+    final_answer = None
     
-    if match:
-        final_answer = match.group(1).strip()
-    else:
+    # Try different tag combinations in priority order
+    tag_patterns = [
+        ("<answer>", "</answer>"),   # Standard format
+        ("<answer>", "</answer"),    # Missing >
+        ("<answer>", "/answer>"),    # Missing <
+        ("<answer", "</answer>"),    # Start tag missing >
+        ("<answer", "</answer"),     # Both missing
+        ("answer>", "</answer>"),    # Start tag missing <
+        ("answer>", "</answer"),     # Start missing <, end missing >
+        ("answer>", "/answer>"),     # Both missing <
+        ("answer>", "answer>"),      # Both missing < and /
+    ]
+
+    for start_tag, end_tag in tag_patterns:
+        # Search for start tag from end to beginning
+        search_pos = len(content)
+        while search_pos > 0:
+            start_idx = content.rfind(start_tag, 0, search_pos)
+            if start_idx == -1:
+                break
+            
+            # Check if this start tag is part of an end tag
+            is_inside_end_tag = False
+            for et in ["</answer>", "</answer", "/answer>"]:
+                et_idx = content.rfind(et, 0, start_idx + len(start_tag))
+                if et_idx != -1 and et_idx <= start_idx < et_idx + len(et):
+                    is_inside_end_tag = True
+                    break
+            
+            if is_inside_end_tag:
+                # Continue searching forward
+                search_pos = start_idx
+                continue
+            
+            # Found a valid start tag
+            content_start = start_idx + len(start_tag)
+            remaining_content = content[content_start:]
+            
+            # Search for end tag
+            end_idx = remaining_content.find(end_tag)
+            
+            if end_idx != -1:
+                final_answer = remaining_content[:end_idx].strip()
+            else:
+                final_answer = remaining_content.strip()
+            
+            break # Found match with this tag pattern
+        
+        if final_answer is not None:
+            break
+
+    if final_answer is None:
         return None
     
     prefix_match = re.match(r'^\s*[A-D][\.\)\-]\s*', final_answer, re.IGNORECASE)
