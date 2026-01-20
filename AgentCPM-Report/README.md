@@ -17,12 +17,12 @@
 - [2026-01-20] 🚀🚀🚀 We open-sourced AgentCPM-Report built on MiniCPM4.1-8B, capable of matching top closed-source commercial systems like Gemini-2.5-pro-DeepResearch in report generation.
 
 ## Overview
-AgentCPM-Report is an open-source large language model agent jointly developed by [THUNLP](https://nlp.csai.tsinghua.edu.cn), Renmin University of China [RUCBM](https://github.com/RUCBM), and [ModelBest](https://modelbest.cn/en). It is based on the [MiniCPM4.1](https://github.com/OpenBMB/MiniCPM4.1) 8B-parameter base model. It accepts user instructions as input and autonomously generates long-form reports. Key highlights:
+AgentCPM-Report is an open-source large language model agent jointly developed by [THUNLP](https://nlp.csai.tsinghua.edu.cn), Renmin University of China [RUCBM](https://github.com/RUCBM), and [ModelBest](https://modelbest.cn/en). It is based on the [MiniCPM4.1](https://github.com/OpenBMB/MiniCPM) 8B-parameter base model. It accepts user instructions as input and autonomously generates long-form reports. Key highlights:
 
-- **Strong advantages in insight and comprehensiveness**: The first 8B edge-side model to surpass closed-source DeepResearch systems on deep research report generation tasks, redefining the performance ceiling for small-scale agent systems—especially achieving SOTA results on the Insight metric.
-- **Lightweight and local deployment**: Supports agile local deployment. With frameworks like UltraRAG, it enables large-scale knowledge base construction and can generate reports that are even more professional and in-depth than large models. Lightweight models plus local knowledge bases make it feasible to deploy a deep-research report writing system on a personal computer, laying the foundation for report writing based on personal privacy data or private-domain data.
+- **Extreme Performance, Minimal Footprint**: Through an average of 40 rounds of deep retrieval and nearly 100 rounds of chain-of-thought reasoning, it achieves comprehensive information mining and restructuring, enabling edge-side models to produce logically rigorous, deeply insightful long-form articles with tens of thousands of words. With just 8 billion parameters, it delivers performance on par with top-tier closed-source systems in deep research tasks.  
+- **Physical Isolation, Local Security**: Specifically designed for high-privacy scenarios, it supports fully offline and agile local deployment, completely eliminating the risk of cloud data leaks. Leveraging our UltraRAG framework, it efficiently mounts and understands your local private knowledge base, securely transforming core confidential data into highly valuable professional decision-making reports without ever leaving its domain.
 
-## Demo Cases
+## Demo
 `YouTube link or Bilibili link for the video`
 
 ## Quick Start
@@ -311,7 +311,7 @@ AgentCPM-Report/
 Our evaluation datasets include DeepResearch Bench, DeepConsult, and DeepResearch Gym. The writing-time knowledge base includes about 2.7 million [Arxiv papers](https://www.kaggle.com/api/v1/datasets/download/Cornell-University/arxiv) and about 200,000 internal webpage summaries.
 
 ## Acknowledgements
-This project would not be possible without the support and contributions of the open-source community. During development, we referred to and used multiple excellent open-source frameworks, models, and data resources, including [verl](https://github.com/volcengine/verl), [UltraRAG](https://github.com/OpenBMB/UltraRAG), [MiniCPM4.1](https://github.com/OpenBMB/MiniCPM4.1), and [SurveyGo](https://surveygo.modelbest.cn/).
+This project would not be possible without the support and contributions of the open-source community. During development, we referred to and used multiple excellent open-source frameworks, models, and data resources, including [verl](https://github.com/volcengine/verl), [UltraRAG](https://github.com/OpenBMB/UltraRAG), [MiniCPM4.1](https://github.com/OpenBMB/MiniCPM), and [SurveyGo](https://surveygo.modelbest.cn/).
 
 ## Contributions
 Project leads: Yishan Li, Wentong Chen

@@ -16,10 +16,10 @@
 ## 新闻
 - [2026-01-20] 🚀🚀🚀我们开源了基于MiniCPM4.1-8B构建的AgentCPM-Report，能够在报告生成领域比肩顶尖的闭源商业系统如Gemini-2.5-pro-DeepResearch
 ## 概述
-AgentCPM-Report是由[THUNLP](https://nlp.csai.tsinghua.edu.cn)、中国人民大学[RUCBM] (https://github.com/RUCBM)和[ModelBest](https://modelbest.cn/en)联合开发的开源大语言模型智能体。它基于[MiniCPM4.1](https://github.com/OpenBMB/MiniCPM4.1) 80亿参数基座模型，接受用户指令作为输入，自主生成长篇报告。其有以下亮点：
+AgentCPM-Report是由[THUNLP](https://nlp.csai.tsinghua.edu.cn)、中国人民大学[RUCBM] (https://github.com/RUCBM)和[ModelBest](https://modelbest.cn/en)联合开发的开源大语言模型智能体。它基于[MiniCPM4.1](https://github.com/OpenBMB/MiniCPM) 80亿参数基座模型，接受用户指令作为输入，自主生成长篇报告。其有以下亮点：
 
-- 洞察力和全面性的显著优势：首个在深度调研报告生成任务上赶超闭源DeepResearch系统的8B端侧模型，重新定义小规模智能体系统性能的天花板，尤其是在洞察力（Insight）这个指标上取得SOTA结果。
-- 轻量化和本地化部署：支持本地进行敏捷部署，基于UltraRAG等框架实现规模化的知识库构建，完成甚至比大模型更加专业、深入的报告生成。轻量级的模型和本地知识库的支持使得可以在个人计算机上部署深度调研报告写作系统成为可能，为基于个人隐私数据或私域数据的报告写作提供了基础。
+- 极致效能，以小博大：通过平均40轮的深度检索与近100轮的思维链推演，实现对信息的全方位挖掘与重组，让端侧模型也能产出逻辑严密、洞察深刻的万字长文，在深度调研任务上以8B参数规模达成与顶级闭源系统的性能对标。
+- 物理隔绝，本地安全：专为高隐私场景设计，支持完全离线的本地化敏捷部署，彻底杜绝云端泄密风险。基于我们的 UltraRAG 框架，它能高效挂载并理解您的本地私有知识库，让核心机密数据在“不出域”的前提下，安全地转化为极具价值的专业决策报告。
 
 ## 演示案例：
 `这里是视频的油管链接或bilibili链接`
@@ -313,7 +313,7 @@ AgentCPM-Report/
 我们的评测数据集包括DeepResearch Bench， DeepConsult和DeepResearch Gym，写作时知识库包括约270万[Arxiv论文](https://www.kaggle.com/api/v1/datasets/download/Cornell-University/arxiv)以及内部的约20万条网页总结。
 
 ## 致谢
-本项目的实现离不开开源社区的支持与贡献。我们在开发过程中参考并使用了多个优秀的开源框架、模型和数据资源，包括[verl](https://github.com/volcengine/verl)、[UltraRAG](https://github.com/OpenBMB/UltraRAG)、[MiniCPM4.1](https://github.com/OpenBMB/MiniCPM4.1)、[SurveyGo](https://surveygo.modelbest.cn/)
+本项目的实现离不开开源社区的支持与贡献。我们在开发过程中参考并使用了多个优秀的开源框架、模型和数据资源，包括[verl](https://github.com/volcengine/verl)、[UltraRAG](https://github.com/OpenBMB/UltraRAG)、[MiniCPM4.1](https://github.com/OpenBMB/MiniCPM)、[SurveyGo](https://surveygo.modelbest.cn/)
 
 ## 贡献
 

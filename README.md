@@ -17,8 +17,26 @@
 * [2026-01-12] 🚀🚀🚀 We have open-sourced **AgentCPM-Explore**—an agent LLM with only **4B parameters**—along with all code for training, inference, and the tool sandbox environment. It successfully made it onto eight classic long-horizon and challenging agent leaderboards, including GAIA, HLE, and BrowseComp. Its SOTA performance at this scale enables longer action chains and more accurate Deep Research, breaking the performance barrier for on-device agents.
 
 
+## Table of Contents
+
+- [Latest News](#latest-news)
+- [Overview](#overview)
+- [Model List](#model-list)
+- [AgentCPM-Explore](#agentcpm-explore)
+  - [Demo](#demo)
+  - [QuickStart](#quickstart)
+- [AgentCPM-Report](#agentcpm-report)
+  - [Introduction](#introduction)
+  - [Demo](#demo-1)
+  - [QuickStart](#quickstart-1)
+    - [Docker Deployment](#docker-deployment)
+- [License](#license)
+- [Citation](#citation)
+- [Explore More](#explore-more)
+
+
 # Overview
-AgentCPM is a series of open-source LLM agents jointly developed by [THUNLP (Tsinghua NLP Lab)](https://nlp.csai.tsinghua.edu.cn), [Renmin University of China](http://ai.ruc.edu.cn/), [ModelBest](https://modelbest.cn/en), and the [OpenBMB community](https://www.openbmb.cn/home). To address challenges faced by agents in real-world applications—such as limited long-horizon capability, autonomy, and generalization—we propose a series of model building approaches. Recently, the team has focused on comprehensively building deep research capabilities for agents, releasing [AgentCPM-Explore](./AgentCPM-Explore/README_zh.md), a deep-search LLM agent, and [AgentCPM-Report](./AgentCPM-Report/README_zh.md), a deep-research LLM agent.
+AgentCPM is a series of open-source LLM agents jointly developed by [THUNLP (Tsinghua NLP Lab)](https://nlp.csai.tsinghua.edu.cn), [Renmin University of China](http://ai.ruc.edu.cn/), [ModelBest](https://modelbest.cn/en), and the [OpenBMB community](https://www.openbmb.cn/home). To address challenges faced by agents in real-world applications—such as limited long-horizon capability, autonomy, and generalization—we propose a series of model building approaches. Recently, the team has focused on comprehensively building deep research capabilities for agents, releasing [AgentCPM-Explore](./AgentCPM-Explore), a deep-search LLM agent, and [AgentCPM-Report](./AgentCPM-Report), a deep-research LLM agent.
 
 
 # Model List
@@ -100,12 +118,13 @@ https://github.com/user-attachments/assets/f2b3bb20-ccd5-4b61-8022-9f6e90992baa
 ## AgentCPM-Report
 
 ### Introduction
-**AgentCPM-Report** is built on the 8B-parameter base model [MiniCPM4.1](https://github.com/OpenBMB/MiniCPM4.1). It takes user instructions as input and autonomously generates long-form reports. Highlights include:
+**AgentCPM-Report** is built on the 8B-parameter base model [MiniCPM4.1](https://github.com/OpenBMB/MiniCPM). It takes user instructions as input and autonomously generates long-form reports. Highlights include:
 
-- Significant advantages in insight and comprehensiveness: the first 8B on-device model to surpass closed-source DeepResearch systems on deep research report generation tasks, redefining the performance ceiling for small-scale agent systems—especially achieving SOTA results on the Insight metric.
-- Lightweight and locally deployable: supports agile local deployment. With frameworks such as UltraRAG, you can build knowledge bases at scale and generate reports that are even more professional and in-depth than those produced by large models alone. The lightweight model plus local knowledge base support makes it possible to deploy a deep research report writing system on a personal computer, enabling report writing based on private or proprietary data.
+- **Extreme Performance, Minimal Footprint**: Through an average of 40 rounds of deep retrieval and nearly 100 rounds of chain-of-thought reasoning, it achieves comprehensive information mining and restructuring, enabling edge-side models to produce logically rigorous, deeply insightful long-form articles with tens of thousands of words. With just 8 billion parameters, it delivers performance on par with top-tier closed-source systems in deep research tasks.  
+- **Physical Isolation, Local Security**: Specifically designed for high-privacy scenarios, it supports fully offline and agile local deployment, completely eliminating the risk of cloud data leaks. Leveraging our UltraRAG framework, it efficiently mounts and understands your local private knowledge base, securely transforming core confidential data into highly valuable professional decision-making reports without ever leaving its domain.
 
-### Autonomous Report Generation
+
+### Demo
 Here is a YouTube video or a Bilibili video link.
 
 ### QuickStart
