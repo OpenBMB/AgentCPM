@@ -1,0 +1,3 @@
+[submodule "AgentCPM-Report/UltraRAG"]
+	path = AgentCPM-Report/UltraRAG
+	url = https://github.com/OpenBMB/UltraRAG.git
