@@ -2847,9 +2847,9 @@ def extract_last_answer(content: str, answer_schema: str="answer") -> str:
             if end_idx != -1:
                 # Found complete answer block
                 return remaining_content[:end_idx].strip()
-            else:
-                # No end tag, return content until end of string (handle truncation)
-                return remaining_content.strip()
+            
+            # No end tag, continue searching backwards
+            search_pos = start_idx
         
     return ""
 
