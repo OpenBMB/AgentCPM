@@ -21,11 +21,11 @@
 - [概述](#概述)
 - [模型列表](#模型列表)
 - [AgentCPM-Explore](#agentcpm-explore)
-  - [持续深度探索](#持续深度探索)
-  - [QuickStart](#quickstart)
+  - [示例视频](#示例视频)
+  - [快速开始](#快速开始)
 - [AgentCPM-Report](#agentcpm-report)
-  - [例子](#例子)
-  - [QuickStart](#quickstart-1)
+  - [示例视频](#示例视频)
+  - [快速开始](#快速开始-1)
 - [开源协议](#开源协议)
 - [引用](#引用)
 - [更多项目](#更多项目)
@@ -54,14 +54,14 @@ AgentCPM 是由[清华大学自然语言处理实验室（THUNLP）](https://nlp
 - 全流程开源，包括智能体全异步强化学习训练框架AgentRL、工具沙盒统一管理调度平台AgentDock、智能体工具学习能力一键测评平台AgentToLeaP，支持社区共建与自定义扩展。
 
 
-### 持续深度探索
+### 示例视频
 演示案例（倍速）：
 
 
 https://github.com/user-attachments/assets/f8487889-d17a-447e-9aef-2608f4c84a83
 
 
-### QuickStart
+### 快速开始
 
 - **多模型多工具协作环境部署**：首先启动 AgentDock 工具沙盒平台，提供统一的 MCP 工具服务。和 API 模型协作时，配置模型的 `BASE_URL` 和 `API_KEY`；和本地 host 的模型协作时，确保模型服务可访问。在 `config.toml` 文件中配置工具所需的使用参数。
 
@@ -115,11 +115,18 @@ https://github.com/user-attachments/assets/f8487889-d17a-447e-9aef-2608f4c84a83
 - 极致效能，以小博大：通过平均40轮的深度检索与近100轮的思维链推演，实现对信息的全方位挖掘与重组，让端侧模型也能产出逻辑严密、洞察深刻的万字长文，在深度调研任务上以8B参数规模达成与顶级闭源系统的性能对标。
 - 物理隔绝，本地安全：专为高隐私场景设计，支持完全离线的本地化敏捷部署，彻底杜绝云端泄密风险。基于我们的 UltraRAG 框架，它能高效挂载并理解您的本地私有知识库，让核心机密数据在“不出域”的前提下，安全地转化为极具价值的专业决策报告。
 
-### 例子
-这里有一个油管视频或bilibili视频链接
+### 示例视频
+<div align="center">
+  <a href="https://www.bilibili.com/video/BV1DYkLBNE6f"><img src="https://i0.hdslb.com/bfs/archive/05f18d5914b8691316161021298a5b63da54eaeb.jpg", width=70%></a>
+</div>
 
-### QuickStart
+### 快速开始
 #### Docker部署
+<div align="center">
+  <a href="https://www.bilibili.com/video/BV1Kfk5BtEbG"><img src="http://i1.hdslb.com/bfs/archive/614883b2cf7ada53ade878e4baaad821c5f25a8c.jpg", width=70%></a>
+</div>
+
+
 我们实现了一个最简单的docker-compose一键部署，集成进了UltraRAG，包含RAG框架UltraRAG2.0，模型推理框架vllm与向量数据库milvus；如果您想使用cpu推理，我们也有使用llama.cpp对gguf格式文件模型的版本，将`docker-compose.yml`转成`docker-compose.cpu.yml`即可。
 
 ``` bash
