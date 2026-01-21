@@ -1,7 +1,7 @@
 
 
 <div align="center">
-  <img src="./assets/light.svg" alt="AgentCPM-Explore 标志" width="400em"></img>
+  <img src="./assets/light.svg" alt="AgentCPM标志" width="400em"></img>
 </div>
 
 <p align="center">
