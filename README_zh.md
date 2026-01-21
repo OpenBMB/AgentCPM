@@ -76,11 +76,11 @@ https://github.com/user-attachments/assets/f8487889-d17a-447e-9aef-2608f4c84a83
    # 1. 进入项目目录
    cd AgentCPM-Explore
    
-   # 2. 拉取镜像
-   docker pull yuyangfu/agenttoleap-eval:v1.0
+   # 2. 拉取镜像 (支持 amd64/arm64 架构)
+   docker pull yuyangfu/agenttoleap-eval:v2.0
    
    # 3. 启动容器 (请根据实际路径修改 -v 参数)
-   docker run -dit --name agenttoleap --gpus all --network host -v $(pwd):/workspace yuyangfu/agenttoleap-eval:v1.0
+   docker run -dit --name agenttoleap --gpus all --network host -v $(pwd):/workspace yuyangfu/agenttoleap-eval:v2.0
    
    # 4. 进入容器
    docker exec -it agenttoleap /bin/bash

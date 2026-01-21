@@ -307,11 +307,11 @@ GOOGLE_SERP_API_KEY=your_serp_key # Google 搜索 API
    我们提供了一个预装好所有评测依赖的 Docker 镜像，建议直接拉取镜像并在容器内运行：
    
    ```bash
-   # 拉取镜像
-   docker pull yuyangfu/agenttoleap-eval:v1.0
+   # 拉取镜像 (支持 amd64/arm64 架构)
+   docker pull yuyangfu/agenttoleap-eval:v2.0
    
    # 启动容器 (请根据实际路径修改 -v 参数)
-   docker run -dit --name agenttoleap --gpus all --network host -v $(pwd):/workspace yuyangfu/agenttoleap-eval:v1.0
+   docker run -dit --name agenttoleap --gpus all --network host -v $(pwd):/workspace yuyangfu/agenttoleap-eval:v2.0
    
    # 进入容器
    docker exec -it agenttoleap /bin/bash

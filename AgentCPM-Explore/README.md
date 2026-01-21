@@ -301,11 +301,11 @@ GOOGLE_SERP_API_KEY=your_serp_key # Google Search API
    We provide a Docker image with all evaluation dependencies pre-installed. It is recommended to pull the image and run it directly:
 
    ```bash
-   # Pull the image
-   docker pull yuyangfu/agenttoleap-eval:v1.0
+   # Pull the image (Supports amd64/arm64 architectures)
+   docker pull yuyangfu/agenttoleap-eval:v2.0
    
    # Start the container (Adjust the -v path as needed)
-   docker run -dit --name agenttoleap --gpus all --network host -v $(pwd):/workspace yuyangfu/agenttoleap-eval:v1.0
+   docker run -dit --name agenttoleap --gpus all --network host -v $(pwd):/workspace yuyangfu/agenttoleap-eval:v2.0
    
    # Enter the container
    docker exec -it agenttoleap /bin/bash

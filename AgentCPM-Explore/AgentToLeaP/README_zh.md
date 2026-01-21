@@ -58,11 +58,11 @@ AgentToLeaP/
 
 ### 1. 环境准备 (推荐)
 
-运行评测最简单的方法是使用我们预构建的 Docker 镜像，其中包含所有必要的依赖项：
+运行评测最简单的方法是使用我们预构建的 Docker 镜像（支持 amd64/arm64 架构），其中包含所有必要的依赖项：
 
 ```bash
-docker pull yuyangfu/agenttoleap-eval:v1.0
-docker run -dit --name agenttoleap --gpus all --network host -v $(pwd):/workspace yuyangfu/agenttoleap-eval:v1.0
+docker pull yuyangfu/agenttoleap-eval:v2.0
+docker run -dit --name agenttoleap --gpus all --network host -v $(pwd):/workspace yuyangfu/agenttoleap-eval:v2.0
 docker exec -it agenttoleap /bin/bash
 cd /workspace
 ```

@@ -79,11 +79,11 @@ https://github.com/user-attachments/assets/f2b3bb20-ccd5-4b61-8022-9f6e90992baa
    # 1. Enter the project folder
    cd AgentCPM-Explore
    
-   # 2. Pull the image
-   docker pull yuyangfu/agenttoleap-eval:v1.0
+   # 2. Pull the image (Supports amd64/arm64 architectures)
+   docker pull yuyangfu/agenttoleap-eval:v2.0
    
    # 3. Start the container (Adjust the -v path as needed)
-   docker run -dit --name agenttoleap --gpus all --network host -v $(pwd):/workspace yuyangfu/agenttoleap-eval:v1.0
+   docker run -dit --name agenttoleap --gpus all --network host -v $(pwd):/workspace yuyangfu/agenttoleap-eval:v2.0
    
    # 4. Enter the container
    docker exec -it agenttoleap /bin/bash
