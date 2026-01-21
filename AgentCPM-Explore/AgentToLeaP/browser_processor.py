@@ -54,8 +54,8 @@ def create_specialist_prompt(raw_content: str, tool_name: str, question: Optiona
     """
     Create context-aware, goal-oriented prompts for the "webpage analysis expert" model.
     """
-    # Use provided path, then environment variable, finally default to a public Qwen model
-    final_tokenizer_path = tokenizer_path or os.getenv("HF_TOKENIZER_PATH", "Qwen/Qwen3-14B")
+    # Use provided path, then environment variable. If neither, final_tokenizer_path is None (triggers tiktoken fallback).
+    final_tokenizer_path = tokenizer_path or os.getenv("HF_TOKENIZER_PATH")
     raw_content = truncate_to_tokens(raw_content, max_tokens=58000, tokenizer_path=final_tokenizer_path) 
 
     user_goal_section = ""
