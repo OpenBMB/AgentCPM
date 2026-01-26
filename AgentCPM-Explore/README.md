@@ -291,6 +291,9 @@ GOOGLE_SERP_API_KEY=your_serp_key # Google Search API
 
 ## QuickStart
 
+- **QuickStart tutorial video (setup & run)**: https://www.youtube.com/watch?v=j3dtYY9KCd0  
+  *Recommended: follow along in the provided evaluation Docker container to avoid environment discrepancies.*
+
 - **Multi-model, multi-tool collaborative environment setup**: First, start the AgentDock tool sandbox platform to provide unified MCP (Model Context Protocol) tool services. When working with API-based models, configure the model’s `BASE_URL` and `API_KEY`. When working with locally hosted models, ensure the model service is accessible. Configure the required tool parameters in the `config.toml` file.
 
 - **Launch the environment**: Out of the box, one-click startup. The AgentDock unified tool sandbox platform supports launching all services with a single `docker compose up -d` command, including the management dashboard, database, and tool nodes.
