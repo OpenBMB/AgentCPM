@@ -52,6 +52,16 @@ docker-compose -f docker-compose.yml logs -f ultrarag-ui
 
 您可以从[教程](https://ultrarag.openbmb.cn/pages/cn/demo/deepresearch) 中阅读更多关于AgentCPM-Report的教程。
 
+#### Huggingface不可用时
+
+Huggingface无法访问时，您可以通过[modelscope](https://modelscope.cn/models/OpenBMB/AgentCPM-Report)离线下载好模型放到UltraRAG/agentcpm-report-demo/models/agentcpm-report中，然后在.env中设置为本地路径：
+```
+VLLM_MODEL_HOST_PATH=
+VLLM_MODEL_CONTAINER_PATH=/models/agentcpm-report
+VLLM_MODEL=/models/agentcpm-report
+VLLM_SERVED_MODEL_NAME=agentcpm-report
+```
+
 ### 代码结构
 ```
 AgentCPM-Report/
