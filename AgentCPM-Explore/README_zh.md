@@ -5,6 +5,16 @@
 </div>
 
 <p align="center">
+<a href='../assets/wechat.md'><img src='../assets/wechat.png' alt='WeChat' height='20'> WeChat</a> |
+<a href='https://github.com/user-attachments/assets/f2b3bb20-ccd5-4b61-8022-9f6e90992baa' target='_blank'>🎥 Demo Video</a>
+</p>
+
+<p align="center">
+<a href='https://huggingface.co/openbmb/AgentCPM-Explore'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-AgentCPM--Explore-yellow'></a>
+<a href='https://modelscope.cn/models/OpenBMB/AgentCPM-Explore/'><img src='https://img.shields.io/badge/%F0%9F%A6%8B%20ModelScope-AgentCPM--Explore-red'></a>
+</p>
+
+<p align="center">
     【中文 | <a href="README.md">English</a>】
 </p>
 
@@ -17,11 +27,11 @@
   <a href="#开发共建">开发共建</a> 
 </p>
 
-# 最新消息
+# 📰 最新消息 <a id="最新消息"></a>
 
 * [2026-01-12] 🚀🚀🚀我们开源了基于仅4B参数的训练的智能体大模型AgentCPM-Explore，成功闯入GAIA、HLE、BrowseComp等8个经典长难智能体任务榜单，同级别SOTA的表现带来更长行为链路、更准确的深度调研能力，由此突破端侧智能体的性能壁垒。
 
-# 概述
+# 🌟 概述 <a id="概述"></a>
 
 **AgentCPM-Explore** 是由[清华大学自然语言处理实验室（THUNLP）](https://nlp.csai.tsinghua.edu.cn)、[中国人民大学](http://ai.ruc.edu.cn/)与[面壁智能](https://modelbest.cn/en)联合开发的开源智能体大模型，基于 [Qwen3-4B-thinking-2507](https://huggingface.co/Qwen/Qwen3-4B-Thinking-2507) 构建，拥有 40 亿参数，让大模型的长程任务处理能力落地端侧。AgentCPM-Explore的亮点包括：
 
@@ -242,15 +252,15 @@ https://github.com/user-attachments/assets/f8487889-d17a-447e-9aef-2608f4c84a83
 
 
 
-# 安装
+# ⚡ 安装 <a id="安装"></a>
 
-## 环境需求
+## ⚙️ 环境需求
 
 - Docker 和 Docker Compose
 - Python 3.10+
 - 至少 8GB 内存（推荐 16GB+）
 
-## AgentDock 工具沙盒平台
+## 🐳 AgentDock 工具沙盒平台
 
 AgentDock 是 AgentCPM-Explore 的统一工具沙盒管理平台，提供 MCP (Model Context Protocol) 服务的容器化部署与管理能力。
 
@@ -292,7 +302,7 @@ JINA_API_KEY=your_jina_key        # Jina Reader API
 GOOGLE_SERP_API_KEY=your_serp_key # Google 搜索 API
 ```
 
-## QuickStart
+## 🚀 QuickStart
 - **QuickStart教程视频（配置 & 跑通）**：<https://www.bilibili.com/video/BV1T2kMBGE8L/?spm_id_from=333.337.search-card.all.click>
 
     *建议在我们提供的评测 Docker 容器内跟跑，避免环境差异。*
@@ -355,13 +365,13 @@ python sglang_init.py \
 --mcp_manager_url YOUR-SERVER-IP-ADDRESS
 ```
 
-# 模型训练
+# 🎓 模型训练 <a id="模型训练"></a>
 
 我们的训练基于自研AgentRL框架进行。
 
 > **详细训练文档**: 请参阅 [AgentRL 训练文档](AgentRL/README_zh.md) 获取完整的训练指南，包括环境配置、数据准备、训练脚本配置等详细说明。
 
-# 一键测评
+# 📊 一键测评 <a id="一键测评"></a>
 
 我们提供了一套完整的自动化评测框架，支持对GAIA、HLE等8个经典智能体任务评测集进行一键测评。每个评测集支持独立管理，并将结果统一输出，便于开发者基于本框架加入新测试集。
 
@@ -369,7 +379,7 @@ python sglang_init.py \
 
 关于详细参数配置、报告说明及自定义评测集的更多细节，请参阅 [AgentToLeaP 测评文档](AgentToLeaP/README_zh.md)。
 
-## 1. 核心参数配置
+## ⚙️ 1. 核心参数配置
 
 在运行评测前，请修改对应 `AgentToLeaP/benchmarks` 目录下的启动脚本（如 `AgentToLeaP/benchmarks/gaia/run.sh`）。
 
@@ -380,7 +390,7 @@ python sglang_init.py \
 | `API_KEY` | "sk-..." | 主模型 API Key |
 | `MANAGER_URL` | "..." | 工具服务器 (AgentDock) 地址 |
 
-## 2. 运行评测
+## 🚀 2. 运行评测
 
 以 **GAIA** Benchmark 为例：
 
@@ -394,11 +404,11 @@ cd AgentToLeaP/benchmarks/gaia
 bash run.sh
 ```
 
-## 3. 查看报告
+## 📄 3. 查看报告
 
 评测结果将保存在 `EVALUATION_ROOT_DIR` 指定的目录下。包含交互轨迹 `dialog.json`、原始结果 `result.json` 以及各任务的详细报告。
 
-## 4. 添加自定义评测集
+## ➕ 4. 添加自定义评测集
 
 本框架支持轻松扩展新的评测数据集。只需遵循以下步骤：
 
@@ -413,9 +423,9 @@ bash run.sh
 
 
 
-# 开发共建
+# 🤝 开发共建 <a id="开发共建"></a>
 
-## 自定义工具接入
+## 🛠️ 自定义工具接入
 
 如果开发者想使用自定义的工具接入环境进行训练 and 评测，可以通过以下步骤配置：
 
@@ -473,7 +483,7 @@ env = { MY_API_KEY = "your_key" }  # 可选：环境变量
 docker compose restart agentdock-node-explore
 ```
 
-## 自定义模型接入
+## 🔧 自定义模型接入
 
 一个或多个工具批量纳入统一管理平台后，以 Qwen3 系列模型为例，即可执行如下指令进行推理：
 
@@ -487,7 +497,7 @@ python quickstart.py \
 
 如需切换模型，需要查阅对应模型相关的文档以获取其工具调用的 special token，在 `src/tool_parser/` 目录增加工具调用的 parser 来解析工具调用，由此访问工具服务获取执行结果。
 
-# 致谢
+# 🙏 致谢
 
 本项目的实现离不开开源社区的支持与贡献。我们在开发过程中参考并使用了多个优秀的开源框架、模型和数据资源，包括
 [verl](https://github.com/volcengine/verl)、
@@ -509,7 +519,7 @@ python quickstart.py \
 
 
 
-# 贡献
+# 🤝 贡献
 
 项目负责人：陈颢天
 
@@ -517,15 +527,7 @@ python quickstart.py \
 
 项目指导人：林衍凯, 刘知远, 孙茂松
 
-# 技术交流
-
-技术交流：扫描下方二维码加入讨论群，期待您的建议与反馈。
-
-<div align="center">
-  <img src="../assets/Wechat_group.jpg" alt="技术交流群二维码" width="300em"></img>
-</div>
-
-# 引用
+# 📄 引用
 
 如果 **AgentCPM-Explore** 对您的研究有所帮助，您可以按照如下方式进行引用：
 

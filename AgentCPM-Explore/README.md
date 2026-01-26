@@ -3,6 +3,16 @@
 </div>
 
 <p align="center">
+<a href='../assets/wechat.md'><img src='../assets/wechat.png' alt='WeChat' height='20'> WeChat</a> |
+<a href='https://github.com/user-attachments/assets/f2b3bb20-ccd5-4b61-8022-9f6e90992baa' target='_blank'>🎥 Demo Video</a>
+</p>
+
+<p align="center">
+<a href='https://huggingface.co/openbmb/AgentCPM-Explore'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-AgentCPM--Explore-yellow'></a>
+<a href='https://modelscope.cn/models/OpenBMB/AgentCPM-Explore/'><img src='https://img.shields.io/badge/%F0%9F%A6%8B%20ModelScope-AgentCPM--Explore-red'></a>
+</p>
+
+<p align="center">
     【<a href="README_zh.md">中文</a> | English】
 </p>
 
@@ -15,11 +25,11 @@
   <a href="#community-development">Community Development</a>
 </p>
 
-# Latest News
+# 📰 Latest News
 
 * [2026-01-12] 🚀🚀🚀 We open-sourced **AgentCPM-Explore**, an agent foundation model trained with only **4B parameters**, which successfully entered **8 classic long-horizon and hard agent benchmarks** including **GAIA, HLE, and BrowseComp**. It achieves **state-of-the-art performance within the same parameter scale**, enabling longer action chains and more accurate deep research capabilities, thereby breaking the performance ceiling of **on-device agents**.
 
-# Overview
+# 🌟 Overview
 
 **AgentCPM-Explore** is an open-source agent foundation model jointly developed by the [THUNLP](https://nlp.csai.tsinghua.edu.cn), [Renmin University of China](http://ai.ruc.edu.cn/), and [ModelBest](https://modelbest.cn/en). It is built upon [Qwen3-4B-Thinking-2507](https://huggingface.co/Qwen/Qwen3-4B-Thinking-2507) with **4 billion parameters**, bringing long-horizon task-solving capabilities of large models to **on-device deployment**.
 
@@ -238,15 +248,15 @@ Experimental Results:
   </tbody>
 </table>
 
-# Installation
+# ⚡ Installation
 
-## Requirements
+## ⚙️ Requirements
 
 - Docker & Docker Compose
 - Python 3.10+
 - At least 8GB RAM (16GB+ recommended)
 
-## AgentDock Tool Sandbox Platform
+## 🐳 AgentDock Tool Sandbox Platform
 
 **AgentDock** is the unified tool sandbox management platform for AgentCPM-Explore. It provides containerized deployment and management for MCP (Model Context Protocol) services.
 
@@ -289,7 +299,7 @@ GOOGLE_SERP_API_KEY=your_serp_key # Google Search API
 ```
 
 
-## QuickStart
+## 🚀 QuickStart
 
 - **QuickStart tutorial video (setup & run)**: https://www.youtube.com/watch?v=j3dtYY9KCd0  
   *Recommended: follow along in the provided evaluation Docker container to avoid environment discrepancies.*
@@ -354,13 +364,13 @@ python sglang_init.py \
 --mcp_manager_url YOUR-SERVER-IP-ADDRESS
 ```
 
-# Model Training
+# 🎓 Model Training
 
 Our training is based on our in-house **AgentRL** framework.
 
 > **Detailed training documentation**: Please refer to [AgentRL Training Documentation](AgentRL/README.md) for a complete training guide, including environment setup, data preparation, training script configuration, and other details.
 
-# One-Click Evaluation
+# 📊 One-Click Evaluation
 
 We provide a complete automated evaluation framework that supports **one-click evaluation** on **8 classic agent benchmarks**, including GAIA and HLE. Each benchmark can be managed independently, while results are exported in a unified format—making it easy for developers to add new benchmarks on top of this framework.
 
@@ -368,7 +378,7 @@ We provide a complete automated evaluation framework that supports **one-click e
 
 For detailed parameter configuration, report explanation, and instructions on adding custom benchmarks, please refer to the [AgentToLeaP Documentation](AgentToLeaP/README.md).
 
-## 1. Core Parameter Configuration
+## ⚙️ 1. Core Parameter Configuration
 
 Before running evaluation, please edit the corresponding launch script under `AgentToLeaP/benchmarks/` (e.g., `AgentToLeaP/benchmarks/gaia/run.sh`).
 
@@ -379,7 +389,7 @@ Before running evaluation, please edit the corresponding launch script under `Ag
 | `API_KEY` | "sk-..." | Primary model API key |
 | `MANAGER_URL` | "..." | Tool server (AgentDock) endpoint |
 
-## 2. Run Evaluation
+## 🚀 2. Run Evaluation
 
 Take the **GAIA** benchmark as an example:
 
@@ -393,11 +403,11 @@ cd AgentToLeaP/benchmarks/gaia
 bash run.sh
 ```
 
-## 3. Viewing Reports
+## 📄 3. Viewing Reports
 
 Evaluation results will be saved under the directory specified by `EVALUATION_ROOT_DIR`. It includes the interaction trajectory `dialog.json`, raw results `result.json`, and detailed reports for each task.
 
-## 4. Adding a Custom Benchmark
+## ➕ 4. Adding a Custom Benchmark
 
 This framework is designed to be easily extensible. To add a new evaluation dataset:
 
@@ -408,9 +418,9 @@ This framework is designed to be easily extensible. To add a new evaluation data
 For more detailed instructions, please refer to the [AgentToLeaP Documentation](AgentToLeaP/README.md).
 
 
-# Community Development
+# 🤝 Community Development
 
-## Integrating Custom Tools
+## 🛠️ Integrating Custom Tools
 
 If developers want to integrate custom tools into the environment for training and evaluation, they can configure them by following the steps below:
 
@@ -468,7 +478,7 @@ env = { MY_API_KEY = "your_key" }
 docker compose restart agentdock-node-explore
 ```
 
-## Integrating Custom Models
+## 🔧 Integrating Custom Models
 
 Once one or more tools have been batch-registered into the unified management platform, you can run inference commands using models such as the Qwen3 series as an example:
 
@@ -482,7 +492,7 @@ python quickstart.py \
 
 If you need to switch to a different model, please refer to the corresponding model documentation to obtain the required *special tokens* for tool calling. Then, add a corresponding tool-call parser under the `src/tool_parser/` directory to parse the model’s tool invocation format, enabling access to the tool services and retrieval of execution results.
 
-# Acknowledge
+# 🙏 Acknowledge
 
 This project builds upon and integrates ideas, tools, and resources from several open-source frameworks and models, including
 [verl](https://github.com/volcengine/verl),
@@ -499,7 +509,7 @@ as well as datasets such as
 [HybridQA](https://huggingface.co/datasets/wenhu/hybrid_qa),
 and [MegaScience](https://huggingface.co/datasets/MegaScience/MegaScience).
 
-# Contributions
+# 🤝 Contributions
 
 Project Lead: Haotian Chen
 
@@ -509,7 +519,7 @@ Project Supervisor: Yankai Lin, Zhiyuan Liu, Maosong Sun
 
 ---
 
-# Citation
+# 📄 Citation
 
 If **AgentCPM-Explore** is useful for your research, please cite the codebase:
 
