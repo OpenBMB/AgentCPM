@@ -500,7 +500,7 @@ and [MegaScience](https://huggingface.co/datasets/MegaScience/MegaScience).
 
 Project Lead: Haotian Chen
 
-Contributors: Haotian Chen, Xin Cong, Shengda Fan, Yuyang Fu, Ziqin Gong, Yaxi Lu, Yishan Li, Boye Niu, Chengjun Pan, Zijun Song, Huadong Wang, Yesai Wu, Yueying Wu, Zihao Xie, Yukun Yan, Zhong Zhang
+Contributors (in alphabetical order): Haotian Chen, Xin Cong, Shengda Fan, Yuyang Fu, Ziqin Gong, Yaxi Lu, Yishan Li, Boye Niu, Chengjun Pan, Zijun Song, Huadong Wang, Yesai Wu, Yueying Wu, Zihao Xie, Yukun Yan, Zhong Zhang
 
 Project Supervisor: Yankai Lin, Zhiyuan Liu, Maosong Sun
 
