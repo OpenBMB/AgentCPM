@@ -517,6 +517,14 @@ python quickstart.py \
 
 项目指导人：林衍凯, 刘知远, 孙茂松
 
+# 技术交流
+
+技术交流：扫描下方二维码加入讨论群，期待您的建议与反馈。
+
+<div align="center">
+  <img src="../assets/Wechat_group.jpg" alt="技术交流群二维码" width="300em"></img>
+</div>
+
 # 引用
 
 如果 **AgentCPM-Explore** 对您的研究有所帮助，您可以按照如下方式进行引用：
@@ -529,3 +537,4 @@ python quickstart.py \
   url    = {https://github.com/OpenBMB/AgentCPM-Explore}
 }
 ```
+
