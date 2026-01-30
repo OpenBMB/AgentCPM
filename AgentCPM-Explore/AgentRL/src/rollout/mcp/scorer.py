@@ -90,16 +90,16 @@ DEFAULT_LLM_JUDGE_PROMPT_TEMPLATE = """You are an expert evaluation assistant.
 
 async def llm_judge_score(solution_str: str, ground_truth: Dict[str, Any], scorer_agent_config: Dict[str, Any]) -> bool:
     """
-    使用LLM判断预测答案和标准答案是否等价。
+    Use LLM to judge whether predicted answer and ground truth are equivalent.
 
     Args:
-        solution_str: 预测答案
-        ground_truth: 标准答案字典，包含 "query" 和 "answer" 字段
-        scorer_agent_config: scorer_agent 配置字典，包含 models 列表和其他配置
+        solution_str: Predicted answer
+        ground_truth: Ground truth dict, contains "query" and "answer" fields
+        scorer_agent_config: scorer_agent config dict, contains models list and other config
 
     Returns:
-        - True: 如果LLM判断为 "Correct"
-        - False: 如果LLM判断为 "Incorrect" 或 API 调用失败
+        - True: If LLM judges as "Correct"
+        - False: If LLM judges as "Incorrect" or API call fails
     """
     # Validate inputs
     if not solution_str or not solution_str.strip():
@@ -133,7 +133,7 @@ async def llm_judge_score(solution_str: str, ground_truth: Dict[str, Any], score
         logger.error("No models configured in scorer_agent config")
         return False
     
-    # 尝试配置中的每个模型，按顺序
+    # Try each model in config, in order
     for i, model_config in enumerate(models):
         api_key = model_config.get("api_key")
         base_url = model_config.get("base_url")
@@ -145,7 +145,7 @@ async def llm_judge_score(solution_str: str, ground_truth: Dict[str, Any], score
         
         try:
             client = AsyncOpenAI(api_key=api_key, base_url=base_url)
-            logger.info(f"尝试使用 scorer_agent model {i+1}: {model_name}")
+            logger.info(f"Trying scorer_agent model {i+1}: {model_name}")
             
             delay = retry_delay
             for attempt in range(max_retries):
@@ -177,7 +177,7 @@ async def llm_judge_score(solution_str: str, ground_truth: Dict[str, Any], score
                         logger.warning(f"Scorer agent model {i+1} ({model_name}) error after {max_retries} attempts: {e}")
                         break
         except Exception as e:
-            logger.warning(f"Scorer agent model {i+1} ({model_name}) 调用异常: {e}")
+            logger.warning(f"Scorer agent model {i+1} ({model_name}) call exception: {e}")
             continue
 
     logger.error(f"All {len(models)} models in scorer_agent config failed")
@@ -189,9 +189,9 @@ async def agentcpm_scorer(model_answer: str, ground_truth: Dict[str, Any], score
     Scorer for agentcpm tasks using LLM judge.
     
     Args:
-        model_answer: 模型预测的答案
-        ground_truth: 标准答案，可以是字典 {"query": ..., "answer": ...} 或字符串
-        scorer_agent_config: scorer_agent 配置字典，包含 models 列表和其他配置
+        model_answer: Model predicted answer
+        ground_truth: Ground truth answer, can be dict {"query": ..., "answer": ...} or string
+        scorer_agent_config: scorer_agent config dict, contains models list and other config
     """
     # Validate model_answer
     if not model_answer or not str(model_answer).strip():
@@ -201,11 +201,11 @@ async def agentcpm_scorer(model_answer: str, ground_truth: Dict[str, Any], score
     model_answer = str(model_answer).strip()
     
     if isinstance(ground_truth, dict):
-        # 使用 LLM judge 进行评分
+        # Use LLM judge for scoring
         is_correct = await llm_judge_score(model_answer, ground_truth, scorer_agent_config)
         return float(is_correct)
     elif isinstance(ground_truth, str):
-        # 如果 ground_truth 是字符串，转换为字典格式
+        # If ground_truth is string, convert to dict format
         ground_truth_str = str(ground_truth).strip()
         if not ground_truth_str:
             return 0.0
@@ -260,22 +260,22 @@ class MCPScorerFactory:
                 scorer_agent_config: Dict[str, Any]
             ) -> float:
                 \"\"\"
-                自定义 scorer 函数
-                
+                Custom scorer function
+
                 Args:
-                    model_answer: 模型预测的答案（字符串）
-                    ground_truth: 标准答案字典，包含 "query" 和 "answer" 字段
-                    scorer_agent_config: scorer_agent 配置字典
-                    
+                    model_answer: Model predicted answer (string)
+                    ground_truth: Ground truth dict, contains "query" and "answer" fields
+                    scorer_agent_config: scorer_agent config dict
+
                 Returns:
-                    评分（0.0 到 1.0 之间的浮点数）
+                    Score (float between 0.0 and 1.0)
                 \"\"\"
-                # 实现自定义评分逻辑
-                # 可以使用 scorer_agent_config 中的模型配置进行 LLM judge
-                # 或实现其他评分策略（如精确匹配、模糊匹配等）
+                # Implement custom scoring logic
+                # Can use model config from scorer_agent_config for LLM judge
+                # Or implement other scoring strategies (e.g., exact match, fuzzy match, etc.)
                 return score
 
-            # 注册自定义 scorer
+            # Register custom scorer
             MCPScorerFactory.register_scorer("custom_scorer", my_custom_scorer)
             ```
         """

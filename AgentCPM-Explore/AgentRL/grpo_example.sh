@@ -1,17 +1,17 @@
 #!/bin/bash
 set -euo pipefail
 
-# --- 用户配置区 ---
+# --- User Configuration Area ---
 NUM_PROCESSES=<YOUR_NUM_PROCESSES>
 if [ $# -lt 1 ]; then
-  echo "用法: $0 <RUN_NAME>"
+  echo "Usage: $0 <RUN_NAME>"
   exit 1
 fi
 RUN_NAME="$1"
 
 FILE_DIR=$(cd "$(dirname "$0")" && pwd)
 # ---------------------
-# 创建日志目录
+# Create log directory
 mkdir -p logs/as
 
 cleanup() {
@@ -25,13 +25,13 @@ echo "Launching training locally..."
 
 export TOKENIZERS_PARALLELISM=false
 
-#多机多卡配置
-export MACHINE_RANK=0             # 节点编号
-export NUM_MACHINES=1             # 总机器数
+# Multi-machine multi-GPU configuration
+export MACHINE_RANK=0             # Node ID
+export NUM_MACHINES=1             # Total number of machines
 export MASTER_ADDR="<YOUR_MASTER_ADDR>" 
 export MASTER_PORT="<YOUR_MASTER_PORT>"
 
-# 通信配置
+# Communication configuration
 export NCCL_SOCKET_IFNAME="<YOUR_NCCL_SOCKET_IFNAME>"
 export GLOO_SOCKET_IFNAME="<YOUR_GLOO_SOCKET_IFNAME>"
 export TORCH_DISTRIBUTED_BACKEND=nccl
@@ -45,7 +45,7 @@ export MONITOR_INTERVAL=5
 export TORCH_NCCL_TRACE_BUFFER_SIZE=1048576
 export LOG_LEVEL=debug
 
-# swanlab配置
+# SwanLab configuration
 export SWANLAB_API_KEY="<YOUR_SWANLAB_API_KEY>"
 export SWANLAB_PROJECT="<YOUR_SWANLAB_PROJECT>"
 export SWANLAB_WORKSPACE="<YOUR_SWANLAB_WORKSPACE>"

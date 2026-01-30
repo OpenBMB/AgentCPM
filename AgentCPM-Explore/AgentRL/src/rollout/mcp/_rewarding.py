@@ -179,28 +179,28 @@ async def apply_mcp_rewarding_logic(
                     score_1_records.append((rec, turns))
 
             # ==============================================================
-            # 通用核心函数：计算零和排名权重
+            # Generic core function: calculate zero-sum rank weights
             # ==============================================================
             async def apply_rank_zero_sum(records_list, total_spread, higher_turns_is_better):
                 n = len(records_list)
-                if n <= 1: return # 没法比较，不做调整
+                if n <= 1: return # Cannot compare, no adjustment
                 
-                # 1. 排序
-                # 必须先按 turns 排序，才能正确处理相同排名的平均值
+                # 1. Sort
+                # Must sort by turns first to correctly handle average of same ranks
                 sorted_records = sorted(records_list, key=lambda x: x[1])
                 
-                # 2. 计算平均排名 (Handle Ties)
-                # ranks 数组存放每个样本的排名值
+                # 2. Calculate average rank (Handle Ties)
+                # ranks array stores rank value for each sample
                 ranks = [0.0] * n
                 i = 0
                 while i < n:
                     j = i
-                    # 找到所有轮次相同的区间 [i, j)
+                    # Find all intervals with same turns [i, j)
                     while j < n and sorted_records[j][1] == sorted_records[i][1]:
                         j += 1
                     
-                    # 计算该区间的平均排名
-                    # 比如占据了位置 0, 1, 2，平均排名就是 1.0
+                    # Calculate average rank for this interval
+                    # For example, occupying positions 0, 1, 2, average rank is 1.0
                     avg_rank = sum(range(i, j)) / (j - i)
                     
                     for k in range(i, j):
@@ -208,37 +208,37 @@ async def apply_mcp_rewarding_logic(
                     
                     i = j
                 
-                # 3. 计算排名的均值 (用于中心化)
-                # 理论均值是 (n-1)/2，但在有 Tie 的情况下，算术平均值依然是最准的零和锚点
+                # 3. Calculate mean of ranks (for centering)
+                # Theoretical mean is (n-1)/2, but with Ties, arithmetic mean is still the most accurate zero-sum anchor
                 mean_rank = sum(ranks) / n
                 
-                # 4. 计算步长 (Step Size)
-                # 我们希望最极端的排名对应 +/- half_spread
+                # 4. Calculate step size (Step Size)
+                # We want most extreme ranks to correspond to +/- half_spread
                 # adjustment = (rank - mean_rank) * step
-                # max_deviation 约为 (n-1)/2
+                # max_deviation is approximately (n-1)/2
                 # step = half_spread / ((n-1)/2) = spread / (n-1)
                 step = total_spread / (n - 1) if n > 1 else 0
                 
-                # 5. 应用调整
+                # 5. Apply adjustment
                 total_check = 0
                 for idx, (rec, turns) in enumerate(sorted_records):
                     rank = ranks[idx]
                     
-                    # 中心化：将排名变成围绕 0 的分布
+                    # Center: transform ranks into distribution centered around 0
                     centered_rank = rank - mean_rank 
                     
-                    # 计算基础调整值
+                    # Calculate base adjustment value
                     adjustment = centered_rank * step
                     
-                    # 6. 决定方向
+                    # 6. Determine direction
                     if not higher_turns_is_better:
-                        # 如果希望轮次越短分越高 (如 Correct 组)
-                        # 此时 Rank 越小(short)，centered_rank 是负数
-                        # 我们需要它变正，所以取反
+                        # If we want shorter turns to score higher (e.g., Correct group)
+                        # When Rank is smaller (short), centered_rank is negative
+                        # We need it to be positive, so negate
                         adjustment = -adjustment
                     else:
-                        # 如果希望轮次越长分越高 (如 Wrong 组)
-                        # Rank 越大(long)，centered_rank 是正数，直接加
+                        # If we want longer turns to score higher (e.g., Wrong group)
+                        # Rank is larger (long), centered_rank is positive, add directly
                         pass
                     
                     old_score = rec.score if rec.score is not None else 0.0
@@ -251,14 +251,14 @@ async def apply_mcp_rewarding_logic(
                 return total_check
 
             # ==============================================================
-            # 1. 错误组 (Wrong Group)
+            # 1. Wrong Group
             # ==============================================================
-            # 目标：Short(Rank小) -> 负分; Long(Rank大) -> 正分
-            # 方向：Higher Turns is Better (in terms of penalty mitigation)
+            # Goal: Short(Rank small) -> negative score; Long(Rank large) -> positive score
+            # Direction: Higher Turns is Better (in terms of penalty mitigation)
             if len(score_0_records) > 0:
                 sum_check = await apply_rank_zero_sum(
                     score_0_records, 
-                    total_spread=0.2,       # 范围 ±0.1
+                    total_spread=0.2,       # Range ±0.1
                     higher_turns_is_better=True 
                 )
                 try:
@@ -270,14 +270,14 @@ async def apply_mcp_rewarding_logic(
                     logger.error(f"Error logging Wrong Group: {e}")
 
             # ==============================================================
-            # 2. 正确组 (Correct Group)
+            # 2. Correct Group
             # ==============================================================
-            # 目标：Short(Rank小) -> 正分; Long(Rank大) -> 负分
-            # 方向：Higher Turns is Worse (Lower is Better)
+            # Goal: Short(Rank small) -> positive score; Long(Rank large) -> negative score
+            # Direction: Higher Turns is Worse (Lower is Better)
             if len(score_1_records) > 0:
                 sum_check = await apply_rank_zero_sum(
                     score_1_records, 
-                    total_spread=0.2,       # 范围 ±0.1
+                    total_spread=0.2,       # Range ±0.1
                     higher_turns_is_better=False
                 )
                 try:

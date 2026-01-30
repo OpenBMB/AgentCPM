@@ -183,12 +183,12 @@ class QwenTrainer(AsyncTrainer):
         # embedding layer, output layer stand for two layers in this computation
 
         hidden_layers = len(model.model.layers)
-        embed_virtual = 2          # embedding 的虚拟层数
-        tail_virtual = 2           # norm + lm_head 的虚拟层数
+        embed_virtual = 2          # Number of virtual layers for embedding
+        tail_virtual = 2           # Number of virtual layers for norm + lm_head
         virtual_total = hidden_layers + embed_virtual + tail_virtual
 
         base = virtual_total // self.args.pp_size
-        rem = virtual_total % self.args.pp_size  # 前 rem 个 stage 分配 (base+1) 个虚拟层
+        rem = virtual_total % self.args.pp_size  # First rem stages allocated (base+1) virtual layers
 
         r = self.pp_rank
         if r < rem:
@@ -197,16 +197,16 @@ class QwenTrainer(AsyncTrainer):
         else:
             v_len = base
             v_start = rem * (base + 1) + (r - rem) * base
-        v_end = v_start + v_len  # 半开区间
+        v_end = v_start + v_len  # Half-open interval
 
-        # 虚拟层区间划分：
-        # [0, embed_virtual) ------------------> embedding 虚拟层
-        # [embed_virtual, embed_virtual + hidden_layers) -> 真实 transformer 层
-        # [embed_virtual + hidden_layers, virtual_total) -> 尾部 (norm + lm_head) 虚拟层
+        # Virtual layer interval division:
+        # [0, embed_virtual) ------------------> embedding virtual layers
+        # [embed_virtual, embed_virtual + hidden_layers) -> real transformer layers
+        # [embed_virtual + hidden_layers, virtual_total) -> tail (norm + lm_head) virtual layers
         transformer_region_start = embed_virtual
         transformer_region_end = embed_virtual + hidden_layers
 
-        # 计算该 stage 覆盖到的真实 transformer 层范围（半开区间）
+        # Calculate the real transformer layer range covered by this stage (half-open interval)
         t_start_virtual = max(v_start, transformer_region_start)
         t_end_virtual = min(v_end, transformer_region_end)
 
@@ -214,9 +214,9 @@ class QwenTrainer(AsyncTrainer):
             start_idx = t_start_virtual - transformer_region_start
             end_idx = t_end_virtual - transformer_region_start
         else:
-            # 该 stage 未包含任何 transformer 层
+            # This stage does not contain any transformer layers
             start_idx = end_idx = 0
-            logger.warning(f"Pipeline rank {r} 未分配到实际 transformer 层 (虚拟层区间: [{v_start},{v_end}))")
+            logger.warning(f"Pipeline rank {r} not allocated any real transformer layers (virtual layer interval: [{v_start},{v_end}))")
 
         return QwenSubModule(
             model,

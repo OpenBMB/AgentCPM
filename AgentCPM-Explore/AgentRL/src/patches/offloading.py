@@ -5,60 +5,60 @@ from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import Activati
 import time
 from collections import defaultdict
 
-# 用于存储计时信息的全局字典
+# Global dict for storing timing information
 timings = defaultdict(float)
 call_counts = defaultdict(int)
 
 def print_timings():
-    """打印计时统计信息。"""
-    print("\n--- Offloading 性能统计 ---")
-    # 按总耗时降序排序
+    """Print timing statistics."""
+    print("\n--- Offloading Performance Statistics ---")
+    # Sort by total time descending
     sorted_timings = sorted(timings.items(), key=lambda item: item[1], reverse=True)
     for key, total_time in sorted_timings:
         count = call_counts[key]
         avg_time = total_time / count if count > 0 else 0
-        print(f"{key:<30}: 总耗时: {total_time:.4f}s, 调用次数: {count}, 平均耗时: {avg_time:.6f}s")
+        print(f"{key:<30}: Total time: {total_time:.4f}s, Call count: {count}, Avg time: {avg_time:.6f}s")
     print("---------------------------------\n")
 
-# --- Offloading 性能统计 ---
-# pack_dtensor                  : 总耗时: 69.0925s, 调用次数: 9000, 平均耗时: 0.007677s
-# pack_dtensor_pin_memory_copy  : 总耗时: 69.0717s, 调用次数: 9000, 平均耗时: 0.007675s
-# pack_tensor                   : 总耗时: 34.7159s, 调用次数: 9539, 平均耗时: 0.003639s
-# pack_tensor_pin_memory_copy   : 总耗时: 34.6969s, 调用次数: 9539, 平均耗时: 0.003637s
-# unpack_dtensor                : 总耗时: 0.6757s, 调用次数: 8496, 平均耗时: 0.000080s
-# unpack_dtensor_from_local     : 总耗时: 0.4270s, 调用次数: 8496, 平均耗时: 0.000050s
-# unpack_dtensor_to_device      : 总耗时: 0.2308s, 调用次数: 8496, 平均耗时: 0.000027s
-# unpack_tensor                 : 总耗时: 0.1815s, 调用次数: 9036, 平均耗时: 0.000020s
-# unpack_tensor_to_device       : 总耗时: 0.1715s, 调用次数: 9036, 平均耗时: 0.000019s
-# pack_dtensor_to_local         : 总耗时: 0.0088s, 调用次数: 9000, 平均耗时: 0.000001s
+# --- Offloading Performance Statistics ---
+# pack_dtensor                  : Total time: 69.0925s, Call count: 9000, Avg time: 0.007677s
+# pack_dtensor_pin_memory_copy  : Total time: 69.0717s, Call count: 9000, Avg time: 0.007675s
+# pack_tensor                   : Total time: 34.7159s, Call count: 9539, Avg time: 0.003639s
+# pack_tensor_pin_memory_copy   : Total time: 34.6969s, Call count: 9539, Avg time: 0.003637s
+# unpack_dtensor                : Total time: 0.6757s, Call count: 8496, Avg time: 0.000080s
+# unpack_dtensor_from_local     : Total time: 0.4270s, Call count: 8496, Avg time: 0.000050s
+# unpack_dtensor_to_device      : Total time: 0.2308s, Call count: 8496, Avg time: 0.000027s
+# unpack_tensor                 : Total time: 0.1815s, Call count: 9036, Avg time: 0.000020s
+# unpack_tensor_to_device       : Total time: 0.1715s, Call count: 9036, Avg time: 0.000019s
+# pack_dtensor_to_local         : Total time: 0.0088s, Call count: 9000, Avg time: 0.000001s
 # ---------------------------------
 
 
-# --- Offloading 性能统计 ---
-# pack_dtensor                  : 总耗时: 69.0925s, 调用次数: 9000, 平均耗时: 0.007677s
-# pack_dtensor_pin_memory_copy  : 总耗时: 69.0717s, 调用次数: 9000, 平均耗时: 0.007675s
-# pack_tensor                   : 总耗时: 34.7165s, 调用次数: 9540, 平均耗时: 0.003639s
-# pack_tensor_pin_memory_copy   : 总耗时: 34.6974s, 调用次数: 9540, 平均耗时: 0.003637s
-# unpack_dtensor                : 总耗时: 0.6757s, 调用次数: 8496, 平均耗时: 0.000080s
-# unpack_dtensor_from_local     : 总耗时: 0.4270s, 调用次数: 8496, 平均耗时: 0.000050s
-# unpack_dtensor_to_device      : 总耗时: 0.2308s, 调用次数: 8496, 平均耗时: 0.000027s
-# unpack_tensor                 : 总耗时: 0.1815s, 调用次数: 9036, 平均耗时: 0.000020s
-# unpack_tensor_to_device       : 总耗时: 0.1715s, 调用次数: 9036, 平均耗时: 0.000019s
-# pack_dtensor_to_local         : 总耗时: 0.0088s, 调用次数: 9000, 平均耗时: 0.000001s
+# --- Offloading Performance Statistics ---
+# pack_dtensor                  : Total time: 69.0925s, Call count: 9000, Avg time: 0.007677s
+# pack_dtensor_pin_memory_copy  : Total time: 69.0717s, Call count: 9000, Avg time: 0.007675s
+# pack_tensor                   : Total time: 34.7165s, Call count: 9540, Avg time: 0.003639s
+# pack_tensor_pin_memory_copy   : Total time: 34.6974s, Call count: 9540, Avg time: 0.003637s
+# unpack_dtensor                : Total time: 0.6757s, Call count: 8496, Avg time: 0.000080s
+# unpack_dtensor_from_local     : Total time: 0.4270s, Call count: 8496, Avg time: 0.000050s
+# unpack_dtensor_to_device      : Total time: 0.2308s, Call count: 8496, Avg time: 0.000027s
+# unpack_tensor                 : Total time: 0.1815s, Call count: 9036, Avg time: 0.000020s
+# unpack_tensor_to_device       : Total time: 0.1715s, Call count: 9036, Avg time: 0.000019s
+# pack_dtensor_to_local         : Total time: 0.0088s, Call count: 9000, Avg time: 0.000001s
 # ---------------------------------
 
 
-# --- Offloading 性能统计 ---
-# pack_dtensor                  : 总耗时: 69.0925s, 调用次数: 9000, 平均耗时: 0.007677s
-# pack_dtensor_pin_memory_copy  : 总耗时: 69.0717s, 调用次数: 9000, 平均耗时: 0.007675s
-# pack_tensor                   : 总耗时: 34.7170s, 调用次数: 9541, 平均耗时: 0.003639s
-# pack_tensor_pin_memory_copy   : 总耗时: 34.6979s, 调用次数: 9541, 平均耗时: 0.003637s
-# unpack_dtensor                : 总耗时: 0.6757s, 调用次数: 8496, 平均耗时: 0.000080s
-# unpack_dtensor_from_local     : 总耗时: 0.4270s, 调用次数: 8496, 平均耗时: 0.000050s
-# unpack_dtensor_to_device      : 总耗时: 0.2308s, 调用次数: 8496, 平均耗时: 0.000027s
-# unpack_tensor                 : 总耗时: 0.1815s, 调用次数: 9036, 平均耗时: 0.000020s
-# unpack_tensor_to_device       : 总耗时: 0.1715s, 调用次数: 9036, 平均耗时: 0.000019s
-# pack_dtensor_to_local         : 总耗时: 0.0088s, 调用次数: 9000, 平均耗时: 0.000001s
+# --- Offloading Performance Statistics ---
+# pack_dtensor                  : Total time: 69.0925s, Call count: 9000, Avg time: 0.007677s
+# pack_dtensor_pin_memory_copy  : Total time: 69.0717s, Call count: 9000, Avg time: 0.007675s
+# pack_tensor                   : Total time: 34.7170s, Call count: 9541, Avg time: 0.003639s
+# pack_tensor_pin_memory_copy   : Total time: 34.6979s, Call count: 9541, Avg time: 0.003637s
+# unpack_dtensor                : Total time: 0.6757s, Call count: 8496, Avg time: 0.000080s
+# unpack_dtensor_from_local     : Total time: 0.4270s, Call count: 8496, Avg time: 0.000050s
+# unpack_dtensor_to_device      : Total time: 0.2308s, Call count: 8496, Avg time: 0.000027s
+# unpack_tensor                 : Total time: 0.1815s, Call count: 9036, Avg time: 0.000020s
+# unpack_tensor_to_device       : Total time: 0.1715s, Call count: 9036, Avg time: 0.000019s
+# pack_dtensor_to_local         : Total time: 0.0088s, Call count: 9000, Avg time: 0.000001s
 
 class save_dtensor_on_cpu(saved_tensors_hooks):
     """Context manager under which dtensors saved by the forward pass will be stored on cpu, then retrieved for backward.
@@ -108,7 +108,7 @@ class save_dtensor_on_cpu(saved_tensors_hooks):
             # if call_counts['pack_dtensor_to_local'] % 1000 == 0 and call_counts['pack_dtensor_to_local'] > 0:
             #     print_timings()
             # start_time = time.time()
-            # DTensor 需要特殊处理：保存本地 shard + 元数据
+            # DTensor needs special handling: save local shard + metadata
             if isinstance(tensor, DTensor):
                 # to_local_start = time.time()
                 local = tensor.to_local()
@@ -134,13 +134,13 @@ class save_dtensor_on_cpu(saved_tensors_hooks):
                 
                 # timings['pack_dtensor'] += time.time() - start_time
                 # call_counts['pack_dtensor'] += 1
-                # 打包为标记的对象，附带重建所需的元数据
+                # Pack as tagged object with metadata needed for reconstruction
                 return (
                     "DTENSOR",
                     (local_cpu, local.device, tensor.device_mesh, tensor.placements, tensor.shape, tensor.stride()),
                 )
             else:
-                # 普通 Tensor 仍保持原逻辑
+                # Regular Tensor keeps original logic
                 if not pin_memory:
                     # to_cpu_start = time.time()
                     cpu_tensor = tensor.cpu()
@@ -176,7 +176,7 @@ class save_dtensor_on_cpu(saved_tensors_hooks):
                 # call_counts['unpack_dtensor_to_device'] += 1
 
                 # from_local_start = time.time()
-                # 用原 mesh/placements 重建全局 DTensor
+                # Reconstruct global DTensor with original mesh/placements
                 dtensor = DTensor.from_local(local, mesh, placements, shape=shape, stride=stride)
                 # timings['unpack_dtensor_from_local'] += time.time() - from_local_start
                 # call_counts['unpack_dtensor_from_local'] += 1

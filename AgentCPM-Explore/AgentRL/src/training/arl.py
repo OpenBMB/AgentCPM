@@ -715,7 +715,7 @@ class AsyncTrainer(Trainer,ABC):
             ranges = [(s, min(s + chunk_size, T)) for s in range(0, T, chunk_size)]
 
         # ------------------------------
-        # Case 1: 普通张量 (无 TP)
+        # Case 1: Regular tensor (no TP)
         # ------------------------------
         if not isinstance(logits, DTensor):
             ent_chunks: list[torch.Tensor] = []
@@ -730,24 +730,24 @@ class AsyncTrainer(Trainer,ABC):
             return ent_chunks[0] if len(ent_chunks) == 1 else torch.cat(ent_chunks, dim=1)
 
         # ------------------------------
-        # Case 2: DTensor (TP 分片)
+        # Case 2: DTensor (TP sharded)
         # ------------------------------
         local_logits = logits.to_local()  # (B, T, V_local)
         logits_group = logits.device_mesh.get_group()
         ent_chunks: list[torch.Tensor] = []
         for start, end in ranges:
             ll = local_logits[:, start:end]  # (B, Tc, V_local)
-            # 局部最大值
+            # Local maximum
             local_max = ll.max(dim=-1).values  # (B, Tc)
-            # 全局最大值
+            # Global maximum
             global_max = torch.distributed.nn.functional.all_reduce(
                 local_max, op=dist.ReduceOp.MAX, group=logits_group
             ).detach() # (B, Tc)
-            # 稳定 shift + exp
+            # Stable shift + exp
             exp_local = torch.exp(ll - global_max.unsqueeze(-1))  # (B, Tc, V_local)
             local_Z = exp_local.sum(dim=-1)  # (B, Tc)
             local_weighted_z = (exp_local * ll).sum(dim=-1)  # (B, Tc)
-            # 全局规约
+            # Global reduction
             Z = torch.distributed.nn.functional.all_reduce(
                 local_Z, op=dist.ReduceOp.SUM, group=logits_group
             )  # (B, Tc)
@@ -1178,10 +1178,10 @@ class AsyncTrainer(Trainer,ABC):
 
         if self.tp_rank == 0 and self.dp_rank == 0:
             logger.info(f"  Optimized Params:\n{[]}")
-            # 收集真正被 optimizer 管理的参数名称（按 param_groups 列出）
+            # Collect parameter names actually managed by optimizer (listed by param_groups)
             opt_param_ids = {id(p) for g in self.optimizer.param_groups for p in g["params"]}
             optimized_params = [name for name, p in model.named_parameters() if id(p) in opt_param_ids]
-            # 为了可读性，分组输出（每组保持与 param_groups 对应）
+            # For readability, group output (each group corresponds to param_groups)
             group_outputs = []
             for gi, g in enumerate(self.optimizer.param_groups):
                 g_names = [name for name, p in model.named_parameters() if id(p) in {id(x) for x in g["params"]}]

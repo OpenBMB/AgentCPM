@@ -179,7 +179,7 @@ async def convert_record_to_data_mcp(
         else:
             # data should be replaced
             # matched_idx is the matched index since we break when found
-            target_data = data_queue[matched_idx]  # ✅ 使用 matched_idx 而不是 idx
+            target_data = data_queue[matched_idx]  # ✅ Use matched_idx instead of idx
             # Ensure messages list is long enough
             while len(target_data.messages) <= response_index:
                 target_data.messages.append(None)

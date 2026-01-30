@@ -36,14 +36,14 @@ class DistributedCounter(Document):
             try:
                 await doc.insert()
             except DuplicateKeyError:
-                # 另一个进程已经创建了该文档，重新查询
-                await asyncio.sleep(0.1)  # 短暂等待确保 MongoDB 提交完成
+                # Another process has already created the document, re-query
+                await asyncio.sleep(0.1)  # Brief wait to ensure MongoDB commit completes
                 doc = await cls.find_one({"name": name}, with_children=True)
                 if doc is None:
-                    # 如果还是找不到，可能是其他问题，重新抛出异常
+                    # If still not found, might be other issue, re-raise exception
                     raise
             except Exception as e:
-                # 其他异常，尝试重新查询一次
+                # Other exception, try re-query once
                 doc = await cls.find_one({"name": name}, with_children=True)
                 if doc is None:
                     raise e

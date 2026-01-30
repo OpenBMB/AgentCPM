@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 def create_specialist_prompt(raw_content: str, question: Optional[str] = None, purpose: Optional[str] = None) -> List[Dict]:
-    """为"网页分析专家"模型创建带有上下文的、目标导向的提示词。"""
+    """Create context-aware, goal-oriented prompts for the 'webpage analysis expert' model."""
     
     user_goal_section = ""
     if purpose:
@@ -65,17 +65,17 @@ async def _try_llm_call(
     extra_body: Optional[Dict[str, Any]] = None
 ) -> Tuple[Optional[str], Optional[Exception]]:
     """
-    尝试调用LLM，返回 (response_text, error)
-    如果成功返回 (text, None)，如果失败返回 (None, exception)
+    Attempt to call LLM, returns (response_text, error)
+    If successful returns (text, None), if failed returns (None, exception)
     
     Args:
-        llm_client: OpenAI 客户端
-        messages: 消息列表
-        model: 模型名称
-        max_retries: 最大重试次数
-        retry_delay: 重试延迟（秒）
-        task_id: 任务ID（可选），用于日志记录
-        enable_logging: 是否记录请求和响应到文件
+        llm_client: OpenAI client
+        messages: Message list
+        model: Model name
+        max_retries: Maximum retry count
+        retry_delay: Retry delay (seconds)
+        task_id: Task ID (optional), for logging
+        enable_logging: Whether to log requests and responses to file
     """
     current_retry_delay = retry_delay
     
@@ -99,7 +99,7 @@ async def _try_llm_call(
             )
             full_response_text = response.choices[0].message.content
             
-            # 记录请求和响应到文件（如果启用）
+            # Log request and response to file (if enabled)
             if enable_logging:
                 try:
                     request_id = str(uuid.uuid4())
@@ -119,7 +119,7 @@ async def _try_llm_call(
                 except Exception as log_e:
                     logging.warning(f"Failed to log request/response: {log_e}")
             
-            # 清理可能的 Markdown 代码块标记
+            # Clean possible Markdown code block markers
             if full_response_text.strip().startswith("```markdown"):
                 full_response_text = full_response_text.strip()[len("```markdown"):]
             if full_response_text.strip().endswith("```"):
@@ -128,12 +128,12 @@ async def _try_llm_call(
             return full_response_text.strip(), None
                 
         except Exception as e:
-            if attempt < max_retries - 1:  # 不是最后一次尝试
-                logging.warning(f"LLM调用失败 (尝试 {attempt + 1}/{max_retries}): {e}，{current_retry_delay}秒后重试...")
+            if attempt < max_retries - 1:  # Not the last attempt
+                logging.warning(f"LLM call failed (attempt {attempt + 1}/{max_retries}): {e}, retrying in {current_retry_delay}s...")
                 await asyncio.sleep(current_retry_delay)
-                current_retry_delay *= 2  # 指数退避：2s, 4s
-            else:  # 最后一次尝试也失败了
-                logging.error(f"错误：专家模型调用失败，已重试{max_retries}次: {e}", exc_info=True)
+                current_retry_delay *= 2  # Exponential backoff: 2s, 4s
+            else:  # Last attempt also failed
+                logging.error(f"Error: Expert model call failed after {max_retries} retries: {e}", exc_info=True)
                 return None, e
     
     return None, Exception(f"All {max_retries} attempts failed")
@@ -146,7 +146,7 @@ async def process_with_llm(
     purpose: Optional[str] = None, 
     task_id: Optional[str] = None
 ) -> str:
-    """使用LLM处理内容，并返回纯粹的 Markdown 报告。使用配置中的多个模型列表，按顺序尝试，失败时使用下一个保底。"""
+    """Process content with LLM and return pure Markdown report. Uses multiple models from config, tries in order, falls back to next on failure."""
     
     messages = create_specialist_prompt(raw_content, question, purpose)
     models = browse_agent_config.get("models", [])
@@ -160,7 +160,7 @@ async def process_with_llm(
         logging.error(error_msg)
         return f"## Error\n{error_msg}"
     
-    # 尝试配置中的每个模型，按顺序
+    # Try each model in config, in order
     for i, model_config in enumerate(models):
         api_key = model_config.get("api_key")
         base_url = model_config.get("base_url")
@@ -172,18 +172,18 @@ async def process_with_llm(
         
         try:
             llm_client = AsyncOpenAI(api_key=api_key, base_url=base_url)
-            logging.info(f"尝试使用 browse_agent model {i+1}: {model_name}")
+            logging.info(f"Trying browse_agent model {i+1}: {model_name}")
             response_text, error = await _try_llm_call(
                 llm_client, messages, model_name, max_retries, retry_delay, task_id, enable_logging, extra_body
             )
             if response_text is not None:
                 return response_text
-            logging.warning(f"Browse agent model {i+1} ({model_name}) 调用失败: {error}")
+            logging.warning(f"Browse agent model {i+1} ({model_name}) call failed: {error}")
         except Exception as e:
-            logging.warning(f"Browse agent model {i+1} ({model_name}) 调用异常: {e}")
+            logging.warning(f"Browse agent model {i+1} ({model_name}) call exception: {e}")
             continue
     
-    # 所有模型都失败了
+    # All models failed
     error_msg = f"LLM call failed: all {len(models)} models in browse_agent config failed after {max_retries} attempts each"
     logging.error(error_msg)
     return f"## Error\n{error_msg}"
@@ -197,21 +197,21 @@ async def summary_url_content(
     task_id: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    汇总 fetch_url 的返回内容，按页面并发生成摘要并合并为一个报告。
-    - tool_content: 可能是 str 或 dict；若为 dict，优先取其中的 'content' 或较长的字符串值。
-    - question: 主任务问题，用于指引摘要焦点。
-    - browse_agent_config: browse_agent 配置字典，包含 models 列表和其他配置。
-    - purpose: 本次访问的即时意图（可选），进一步聚焦摘要。
-    - task_id: 任务ID（可选），用于日志记录。
-    返回: {"status": "success", "content": final_report}
+    Summarize fetch_url return content, generate summaries concurrently by page and merge into one report.
+    - tool_content: Can be str or dict; if dict, prefer 'content' or longer string value.
+    - question: Main task question, for guiding summary focus.
+    - browse_agent_config: browse_agent config dict, contains models list and other config.
+    - purpose: Immediate intent for this visit (optional), further focus summary.
+    - task_id: Task ID (optional), for logging.
+    Returns: {"status": "success", "content": final_report}
     """
     
-    # 1) 归一化为字符串 raw_content
+    # 1) Normalize to string raw_content
     raw_content = ""
     if isinstance(tool_content, dict):
         raw_content = tool_content.get("content", "")
         if not raw_content:
-            # 退化策略：从 dict 里挑最长的字符串值
+            # Fallback strategy: pick the longest string value from dict
             raw_content = max((v for v in tool_content.values() if isinstance(v, str)), key=len, default="")
     elif isinstance(tool_content, str):
         raw_content = tool_content
@@ -219,7 +219,7 @@ async def summary_url_content(
     if not raw_content.strip():
         return {"status": "success", "content": "No textual content to summarize."}
 
-    # 2) 按 fetch_url 的多页分隔符拆分
+    # 2) Split by fetch_url multi-page separator
     pages_content = raw_content.split("\n=======\n")
 
     async def process_single_page(i: int, page_block: str) -> Optional[str]:
@@ -237,11 +237,11 @@ async def summary_url_content(
 
         return f"URL: {current_url}\n\nSummary:\n{summary_text}"
 
-    # 3) 并发处理所有页面
+    # 3) Process all pages concurrently
     tasks = [process_single_page(i, page_block) for i, page_block in enumerate(pages_content)]
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
-    # 4) 过滤并合并结果
+    # 4) Filter and merge results
     summaries = [r for r in results if r and not isinstance(r, Exception)]
     final_report = "\n\n---\n\n".join(summaries) if summaries else "No page content detected."
     

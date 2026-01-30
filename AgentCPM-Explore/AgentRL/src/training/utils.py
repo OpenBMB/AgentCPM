@@ -394,15 +394,15 @@ def _convert_data_into_inputs_labels(
 
 
 def align_with_constant_gap(start_indices, end_indices):
-    # 转成 list 并排序（不改变原始引用）
+    # Convert to list and sort (without changing original reference)
     starts = sorted(list(start_indices))
     ends = sorted(list(end_indices))
 
-    # 1) 推断常数 gap G：对每个 end 找到第一个 > end 的 start，收集 gaps
+    # 1) Infer constant gap G: for each end find first start > end, collect gaps
     gaps = []
     si = 0
     for e in ends:
-        # advance si 到第一个 > e
+        # advance si to first > e
         while si < len(starts) and starts[si] <= e:
             si += 1
         if si < len(starts):
@@ -412,17 +412,17 @@ def align_with_constant_gap(start_indices, end_indices):
         logger.warning("Cannot infer constant gap G, no valid gaps found between starts and ends.")
         G = None
     else:
-        # 取最常见的 gap 作为 G
+        # Take most common gap as G
         G = Counter(gaps).most_common(1)[0][0]
 
-    # 2) 两指针按序配对，强制要求 next_start - end == G（若 G 可用）
+    # 2) Two pointers pair in order, enforce next_start - end == G (if G available)
     aligned_s = []
     aligned_e = []
 
     i, j = 0, 0  # i -> starts, j -> ends
     while i < len(starts) and j < len(ends):
         s = starts[i]
-        # 跳过那些位于 s 之前或等于 s 的 end
+        # Skip ends that are before or equal to s
         if ends[j] <= s:
             j += 1
             continue
@@ -432,12 +432,12 @@ def align_with_constant_gap(start_indices, end_indices):
 
         # check condition: s < e always true here
         ok = False
-        # 情形 A: 有下一个 start，则要求 next_start - e == G（若 G 已知）
+        # Case A: If there is next start, require next_start - e == G (if G known)
         if i + 1 < len(starts):
             if G is None or (starts[i+1] - e == G):
                 ok = True
         else:
-            # 情形 B: s 是最后一个 start，允许配对（没有 next_start 可验证）
+            # Case B: s is the last start, allow pairing (no next_start to verify)
             ok = True
 
         if ok:
@@ -446,8 +446,8 @@ def align_with_constant_gap(start_indices, end_indices):
             i += 1
             j += 1
         else:
-            # 如果不满足 gap，要决定丢弃哪个——通常丢弃这个 end（太早的 end）
-            # 但也可以丢弃当前 start；这里选择丢弃 end（更保守，避免跳过 start）
+            # If gap not satisfied, decide which to discard—usually discard this end (too early end)
+            # But can also discard current start; here choose to discard end (more conservative, avoid skipping start)
             j += 1
 
     return aligned_s, aligned_e

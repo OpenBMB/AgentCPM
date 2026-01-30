@@ -8,21 +8,21 @@ from typing import Any, Dict, List, Optional, Tuple
 logger = logging.getLogger(__name__)
 
 def keep_after_think(response: str) -> str:
-    """保留 </think> 之后的内容"""
+    """Keep content after </think>"""
     idx = response.find("</think>")
     if idx != -1:
         return response[idx + len("</think>") :]
     return response
 
 def keep_after_last_think(response: str) -> str:
-    """保留最后一个 </think> 之后的内容"""
+    """Keep content after the last </think>"""
     idx = response.rfind("</think>")
     if idx != -1:
         return response[idx + len("</think>") :]
     return response
 
 def _extract_code_block(text: str) -> Optional[str]:
-    """从文本中提取 <code> 标签内的内容"""
+    """Extract content from <code> tags in text"""
     match = re.search(r'<code>(.*?)</code>', text, re.DOTALL)
     if match:
         return match.group(1).strip()
@@ -30,17 +30,17 @@ def _extract_code_block(text: str) -> Optional[str]:
 
 def _clean_and_parse_json(json_candidate: str) -> Tuple[Optional[Dict], Optional[str]]:
     """
-    尝试清理并解析 JSON 字符串。
-    返回: (parsed_json_dict, error_message)
+    Attempt to clean and parse JSON string.
+    Returns: (parsed_json_dict, error_message)
     """
-    # 1. 尝试直接解析
+    # 1. Try direct parsing
     try:
         tool_call = json5.loads(json_candidate)
         return tool_call, None
     except Exception:
         pass
 
-    # 2. 尝试通过括号计数截取有效 JSON
+    # 2. Try to extract valid JSON by counting braces
     json_start_idx = json_candidate.find('{')
     if json_start_idx == -1:
         return None, "No JSON start brace '{' found"
@@ -67,7 +67,7 @@ def _clean_and_parse_json(json_candidate: str) -> Tuple[Optional[Dict], Optional
             elif char == '}':
                 brace_count -= 1
                 if brace_count == 0:
-                    # 找到完整的 JSON 对象
+                    # Found complete JSON object
                     try:
                         potential_json = json_candidate[json_start_idx:i+1]
                         return json5.loads(potential_json), None
@@ -79,7 +79,7 @@ def _clean_and_parse_json(json_candidate: str) -> Tuple[Optional[Dict], Optional
 def parse_tool_for_qwen(content: str) -> List[Dict[str, Any]]:
     response = keep_after_last_think(content)
     
-    # 匹配 <tool_call> 块
+    # Match <tool_call> blocks
     tool_call_regex = re.compile(r"<tool_call>\s*(.*?)\s*</tool_call>", re.DOTALL)
     matches = tool_call_regex.findall(response)
     
@@ -87,31 +87,31 @@ def parse_tool_for_qwen(content: str) -> List[Dict[str, Any]]:
     
     for match_content in matches:
         try:
-            # 1. 检测代码块
+            # 1. Detect code blocks
             code_match = re.search(r'<code>(.*?)</code>', match_content, re.DOTALL)
             extracted_code = None
             json_candidate = match_content
 
             if code_match:
                 extracted_code = code_match.group(1).strip()
-                # 关键：截取 <code> 之前的部分作为 JSON 候选，避免 parse error
+                # Key: Extract the part before <code> as JSON candidate to avoid parse error
                 json_candidate = match_content[:code_match.start()].strip()
             
-            # 2. 解析 JSON
+            # 2. Parse JSON
             parsed_json, error = _clean_and_parse_json(json_candidate)
             
             if not parsed_json:
-                # 解析失败，创建一个 format error 标记的 tool_call
+                # Parse failed, create a tool_call marked with format error
                 error_message = f"Failed to parse JSON part, JSON parse error: {error}"
                 logger.debug(f"Failed to parse JSON part: {match_content[:500] if len(match_content) > 500 else match_content}, JSON parse error: {error}")
                 
-                # 创建一个特殊的 tool_call 来标记 format error
-                # function.name 为空会被 sampler.py 检测到并设置为 FORMATERROR
+                # Create a special tool_call to mark format error
+                # Empty function.name will be detected by sampler.py and set to FORMATERROR
                 format_error_tool_call = {
                     "id": f"call__{uuid.uuid4().hex}",
                     "type": "function",
                     "function": {
-                        "name": "",  # 空名称会被 sampler.py 检测为 format error
+                        "name": "",  # Empty name will be detected by sampler.py as format error
                         "arguments": json.dumps({
                             "_format_error": True,
                             "error_message": error_message
@@ -121,31 +121,31 @@ def parse_tool_for_qwen(content: str) -> List[Dict[str, Any]]:
                 raw_function_calls.append(format_error_tool_call)
                 continue
 
-            # 3. 处理代码注入 (针对 execute_code / PythonInterpreter)
+            # 3. Handle code injection (for execute_code / PythonInterpreter)
             tool_name = parsed_json.get("name", "")
             if tool_name in ("execute_code", "PythonInterpreter"):
-                # 确保 arguments 是字典
+                # Ensure arguments is a dict
                 if "arguments" not in parsed_json or not isinstance(parsed_json["arguments"], dict):
                     parsed_json["arguments"] = {}
                 
                 args = parsed_json["arguments"]
                 existing_code = args.get("code")
 
-                # 优先级逻辑：
-                # 1. 如果 arguments 里有代码且非空，使用它
-                # 2. 否则，使用从 <code> 标签提取的代码
-                # 3. 再否则，尝试从原始 match 中再次提取 (fallback)
+                # Priority logic:
+                # 1. If arguments has code and is non-empty, use it
+                # 2. Otherwise, use code extracted from <code> tag
+                # 3. Otherwise, try to extract again from original match (fallback)
                 if not existing_code or (isinstance(existing_code, str) and not existing_code.strip()):
                     if extracted_code:
                         args["code"] = extracted_code
                     else:
-                        # Fallback: 再次尝试从原始文本提取，以防切分逻辑漏掉
+                        # Fallback: Try to extract from original text again in case splitting logic missed it
                         fallback_code = _extract_code_block(match_content)
                         if fallback_code:
                             args["code"] = fallback_code
 
-            # 4. 构造 OpenAI 格式的 Tool Call 对象
-            # 注意：此处使用标准 json.dumps 序列化 arguments 字符串，确保下游兼容性
+            # 4. Construct OpenAI format Tool Call object
+            # Note: Use standard json.dumps to serialize arguments string to ensure downstream compatibility
             if "name" in parsed_json and "arguments" in parsed_json:
                 arguments_str = json.dumps(parsed_json["arguments"], ensure_ascii=False)
                 tool_call = {
@@ -159,7 +159,7 @@ def parse_tool_for_qwen(content: str) -> List[Dict[str, Any]]:
                 raw_function_calls.append(tool_call)
             
             elif "content" in parsed_json and isinstance(parsed_json["content"], dict):
-                # 处理某些变体格式
+                # Handle some variant formats
                 inner_content = parsed_json["content"]
                 if "name" in inner_content and "arguments" in inner_content:
                     arguments_str = json.dumps(inner_content["arguments"], ensure_ascii=False)

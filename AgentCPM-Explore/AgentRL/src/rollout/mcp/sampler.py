@@ -74,71 +74,71 @@ def extract_last_answer(content: str, answer_schema: str = "answer") -> str:
 
 def filter_huggingface_results(content: str, tool_name: str) -> str:
     """
-    过滤搜索结果中包含 huggingface 的条目
+    Filter entries containing huggingface from search results
 
     Args:
-        content: 工具返回的内容
-        tool_name: 工具名称 (目前只处理 search)
+        content: Content returned by tool
+        tool_name: Tool name (currently only handles search)
 
     Returns:
-        过滤后的内容
+        Filtered content
 
     Note:
-        fetch_url 的过滤在工具调用之前进行，避免浪费资源
+        fetch_url filtering is done before tool call to avoid wasting resources
     """
     if not isinstance(content, str) or not content.strip():
         return content
 
     if tool_name == "search":
-        # 使用正则表达式匹配搜索结果的每一项
-        # 格式: 数字. [标题](url)
-        # 需要匹配从 "数字." 开始到下一个 "数字." 之前的内容
+        # Use regex to match each search result item
+        # Format: number. [title](url)
+        # Need to match from "number." to before next "number."
 
         lines = content.split('\n')
         filtered_lines = []
         skip_until_next_item = False
 
         for i, line in enumerate(lines):
-            # 检测是否是新的结果项（以数字. 开头）
+            # Detect if it's a new result item (starts with number.)
             item_match = re.match(r'^(\d+)\.\s+\[.*?\]\((.*?)\)', line)
 
             if item_match:
-                # 这是一个新的结果项
+                # This is a new result item
                 item_num = item_match.group(1)
                 url = item_match.group(2)
 
-                # 检查 URL 是否包含 huggingface
+                # Check if URL contains huggingface
                 if 'huggingface' in url.lower():
                     skip_until_next_item = True
-                    continue  # 跳过这一行
+                    continue  # Skip this line
                 else:
                     skip_until_next_item = False
                     filtered_lines.append(line)
             else:
-                # 不是新的结果项
+                # Not a new result item
                 if not skip_until_next_item:
                     filtered_lines.append(line)
 
-        # 重新编号
+        # Renumber
         result_lines = []
         current_number = 1
 
         for line in filtered_lines:
-            # 检测是否是结果项的开头
+            # Detect if it's the start of a result item
             item_match = re.match(r'^(\d+)(\.\s+\[.*?\]\(.*?\))', line)
             if item_match:
-                # 替换编号
+                # Replace number
                 new_line = f"{current_number}{item_match.group(2)}"
                 result_lines.append(new_line)
                 current_number += 1
             else:
                 result_lines.append(line)
 
-        # 更新总结果数量
+        # Update total result count
         filtered_content = '\n'.join(result_lines)
 
-        # 更新第一行的结果数量说明
-        # 格式: "A Google search for '...' found X total results (showing top Y):"
+        # Update result count description in first line
+        # Format: "A Google search for '...' found X total results (showing top Y):"
         first_line_match = re.match(r"(A Google search for .* found )\d+( total results \(showing top )\d+(\):)", filtered_content)
         if first_line_match:
             new_count = current_number - 1
@@ -717,56 +717,56 @@ class MCPSampler(AsyncSampler):
         # Map PythonInterpreter to execute_code for actual tool call
         actual_tool_name = "execute_code" if tool_name == "PythonInterpreter" else tool_name
         
-        # [新增] 对于 fetch_url，在调用之前检查 URL 是否包含 huggingface
-        # 避免浪费资源进行 summary 处理
+        # [New] For fetch_url, check if URL contains huggingface before calling
+        # Avoid wasting resources on summary processing
         skip_tool_call = False
         if tool_name == "fetch_url":
             url_param = arguments.get("url", [])
-            # url 可能是字符串或列表
+            # url can be string or list
             if isinstance(url_param, str):
                 url_param = [url_param]
             elif not isinstance(url_param, list):
                 url_param = []
 
-            # 检查是否有任何 URL 包含 huggingface
+            # Check if any URL contains huggingface
             filtered_urls = []
             blocked_urls = []
             for url in url_param:
                 if isinstance(url, str) and 'huggingface' in url.lower():
                     blocked_urls.append(url)
-                    logger.info(f"已阻止访问 huggingface URL: {url}")
+                    logger.info(f"Blocked access to huggingface URL: {url}")
                 else:
                     filtered_urls.append(url)
 
-            # 如果所有 URL 都被过滤，跳过工具调用
+            # If all URLs are filtered, skip tool call
             if blocked_urls and not filtered_urls:
                 skip_tool_call = True
                 tool_result = {
                     "status": "success",
                     "content": f"This URL has been filtered out (huggingface domain): {', '.join(blocked_urls)}"
                 }
-                logger.info(f"fetch_url 的所有 URL 均被过滤，跳过工具调用。")
+                logger.info(f"All URLs for fetch_url are filtered, skipping tool call.")
             elif blocked_urls and filtered_urls:
-                # 部分 URL 被过滤，更新参数为过滤后的 URL
+                # Some URLs filtered, update parameters with filtered URLs
                 arguments["url"] = filtered_urls
                 function["arguments"] = json.dumps(arguments)
                 tool_call["function"] = function
-                logger.info(f"fetch_url 的部分 URL 被过滤: {', '.join(blocked_urls)}，将访问剩余 URL: {', '.join(filtered_urls)}")
+                logger.info(f"Some URLs for fetch_url are filtered: {', '.join(blocked_urls)}, will access remaining URLs: {', '.join(filtered_urls)}")
 
         # Only call the tool if tool_result is not already set (e.g., from empty code check)
         if tool_result is None and not skip_tool_call:
             # Call the tool with the actual tool name
-            # 空字典重试逻辑已在 mcp_manager.py 中统一处理（包括等待时间和重建连接）
+            # Empty dict retry logic is handled uniformly in mcp_manager.py (including wait time and connection rebuild)
             tool_result = await self.mcp_handler.call_tool(actual_tool_name, arguments)
             
         
-        # [新增] 对于 search 工具，在返回后过滤 huggingface 结果
+        # [New] For search tool, filter huggingface results after return
         if tool_name == "search" and tool_result and tool_result.get("status") == "success":
             content = tool_result.get("content", "")
             if content:
                 filtered_content = filter_huggingface_results(content, tool_name)
                 tool_result["content"] = filtered_content
-                # logger.info(f"已对 search 工具的返回结果进行 huggingface 过滤。")
+                # logger.info(f"Filtered huggingface results from search tool return.")
         
         # Special handling for browse tools with summarization
         # Skip summarization if purpose indicates full content is needed

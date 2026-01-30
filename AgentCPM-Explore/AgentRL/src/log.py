@@ -60,7 +60,7 @@ set_process_title()
 logger = logging.getLogger("AgentRL")
 logging_level = logging._nameToLevel[os.environ.get("LOG_LEVEL", "info").upper()]
 logger.setLevel(logging_level)
-# 防止日志传播到根logger，避免重复输出
+# Prevent log propagation to root logger to avoid duplicate output
 logger.propagate = False
 stream_handler = colorlog.StreamHandler()
 stream_handler.setLevel(logging_level)

@@ -101,7 +101,7 @@ class MCPDataset(Dataset):
                         query = msg["content"]
                         break
         if not query:
-            query = "未找到query字段"
+            query = "query field not found"
         
         # Extract answer and build task_answer dict
         answer_value = (

@@ -97,7 +97,7 @@ class MATHStateSampler(AsyncSampler):
         Returns:
             float: The calculated score.
         """
-        # 这里简单的处理
+        # Simple handling here
         task: MATHTask = record.task
         gt_answer = task.answer
         try:

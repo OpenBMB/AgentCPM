@@ -1,5 +1,5 @@
 services:
-  # 简单单节点 MongoDB 配置（原有配置）
+  # Simple single-node MongoDB configuration (original config)
   mongo:
     image: mongo
     container_name: mongo
@@ -12,7 +12,7 @@ services:
     volumes:
       - mongo_data:/data/db
 
-  # MongoDB 副本集配置（rs0）
+  # MongoDB replica set configuration (rs0)
   mongo-primary:
     image: mongo:8.0
     container_name: mongo-primary
@@ -22,7 +22,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: password
     ports:
-      - "27018:27017"  # 映射到外部端口 27018
+      - "27018:27017"  # Map to external port 27018
     volumes:
       - mongo_primary_data:/data/db
       - mongo_primary_config:/data/configdb
@@ -118,7 +118,7 @@ services:
       "
 
 volumes:
-  # 简单单节点 MongoDB 数据卷
+  # Simple single-node MongoDB data volume
   mongo_data:
     driver: local
     driver_opts:
@@ -126,7 +126,7 @@ volumes:
       device: ./data
       o: bind
   
-  # 副本集数据卷
+  # Replica set data volumes
   mongo_primary_data:
     driver: local
     driver_opts:

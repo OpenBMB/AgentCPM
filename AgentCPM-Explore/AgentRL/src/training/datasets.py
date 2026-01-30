@@ -195,7 +195,7 @@ class DBIterableDataset(IterableDataset):
                 seq_len = collated['input_ids'].shape[1]
                 cur_bsz = len(raw_batch)
 
-                # 如果当前 batch 的 bsz*len 还没达到阈值，尝试从队列中无阻塞地取更多样本并重打包
+                # If current batch bsz*len hasn't reached threshold, try to get more samples from queue non-blocking and repack
                 while seq_len * cur_bsz < self.args.max_tokens:
                     try:
                         extra = None
@@ -203,12 +203,12 @@ class DBIterableDataset(IterableDataset):
                     except queue.Empty:
                         break
                     if extra is None:
-                        # 保持占位但不增加有效样本
+                        # Keep placeholder but don't increase valid samples
                         buffer.append(extra)
                         break
 
                     raw_batch.append(extra)
-                    # 重打包
+                    # Repack
                     try:
                         new_collated = _collate_batch(raw_batch)
                     except Exception as e:
@@ -217,24 +217,24 @@ class DBIterableDataset(IterableDataset):
                         new_collated = None
                     
                     if new_collated is None or 'input_ids' not in collated:
-                        # 无法打包则撤回加入
+                        # If cannot pack, withdraw and add back
                         buffer.insert(0, raw_batch.pop())
                         break
 
                     new_seq_len = new_collated['input_ids'].shape[1]
                     new_bsz = len(raw_batch)
                     if new_seq_len * new_bsz > self.args.max_tokens:
-                        # 超过阈值，放弃新加入，使用之前较短的 batch
+                        # Exceed threshold, abandon newly added, use previous shorter batch
                         buffer.insert(0, raw_batch.pop())
                         break
                     else:
-                        # 接受新打包，更新当前状态并记录上一个可行批次以便回退
+                        # Accept new packing, update current state and record previous feasible batch for rollback
                         previous_collated = collated
                         collated = new_collated
                         seq_len = new_seq_len
                         cur_bsz = new_bsz
             
-            # 如果动态扩容导致不可用或超过阈值，则回退到之前的较短序列
+            # If dynamic expansion causes unavailability or exceeds threshold, rollback to previous shorter sequence
             if collated is None and previous_collated is not None:
                 self.collated_cache.put(previous_collated)
                 previous_collated = None
@@ -306,7 +306,7 @@ class DBIterableDataset(IterableDataset):
         global_step_counter = await DistributedCounter.create(name="global_step")
         for _ in range(max_retry):
             await global_step_counter.sync()
-            # 聚合随机抽样一个候选
+            # Aggregate random sample one candidate
             pipeline = [
                 {
                     "$match": {
@@ -329,7 +329,7 @@ class DBIterableDataset(IterableDataset):
             candidate_id = candidate["_id"] if isinstance(candidate, dict) else candidate.id
             if candidate_id is None:
                 return None
-            # 原子更新（再次确认条件仍成立）
+            # Atomic update (reconfirm condition still holds)
             updated = await Record.find_one(
                 Record.id == candidate_id,
                 Record.trained_count < self.max_trained_count,
@@ -348,7 +348,7 @@ class DBIterableDataset(IterableDataset):
             )
             if updated is not None:
                 return updated
-            # 否则重试
+            # Otherwise retry
             await asyncio.sleep(1)
         return None
     
@@ -512,7 +512,7 @@ async def preprocess_mm_messages_for_sample(messages):
 
     # download images concurrently
     if image_tasks:
-        # 设置会话与请求超时
+        # Set session and request timeout
         client_timeout = aiohttp.ClientTimeout(total=15, connect=10, sock_read=15, sock_connect=10)
         async with aiohttp.ClientSession(timeout=client_timeout) as session:
             @tenacity.retry(
@@ -524,7 +524,7 @@ async def preprocess_mm_messages_for_sample(messages):
                 )
             )
             async def download_image_base64_from_url(url):
-                # 对单个请求设置超时，避免长时间挂起
+                # Set timeout for individual request to avoid long hanging
                 req_timeout = aiohttp.ClientTimeout(total=15, connect=10, sock_read=15, sock_connect=10)
                 async with session.get(url, timeout=req_timeout) as response:
                     response.raise_for_status()

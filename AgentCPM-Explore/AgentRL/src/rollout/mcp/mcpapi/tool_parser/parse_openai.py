@@ -5,10 +5,10 @@ def to_dict(obj):
     # pydantic v1
     if hasattr(obj, "dict"):
         return obj.dict()
-    # 普通对象
+    # Regular object
     if hasattr(obj, "__dict__"):
         return vars(obj)
-    # 已经是 dict
+    # Already a dict
     if isinstance(obj, dict):
         return obj
     raise TypeError(f"Cannot convert {type(obj)} to dict")
@@ -18,8 +18,8 @@ def parse_tool_for_openai(completion):
         tool_calls = completion.get("tool_calls", [])
     else:
         tool_calls = getattr(completion, "tool_calls", [])
-    # 防御：确保 tool_calls 是列表
+    # Defensive: ensure tool_calls is a list
     if tool_calls is None:
         tool_calls = []
-    # 统一转为 dict
+    # Convert all to dict
     return [to_dict(tc) for tc in tool_calls] 

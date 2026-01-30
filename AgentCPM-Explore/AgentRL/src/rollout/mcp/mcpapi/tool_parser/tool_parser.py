@@ -20,7 +20,7 @@ import re
 #                 tool_calls = parse_tool_for_minicpm3(sequence=completion["response"]) 
 #             else:
 #                 tool_calls = []
-#         # 防御性：保证返回列表
+#         # Defensive: ensure return is a list
 #         if tool_calls is None:
 #             tool_calls = []
 #         return tool_calls
@@ -35,26 +35,26 @@ def parse_tool(completion: dict) -> list:
         tool_calls.extend(qwen_tool_calls)
     return tool_calls
 
-# #TODO: 简化 
+# #TODO: Simplify
 
 # def parse_tool(completion) -> list:
 #     """
-#     极简版。不区分来源，openai tool_calls 和 qwen <tool_call> 均塞入同一 list。
-#     解析失败的内容直接以字符串形式保留。
+#     Minimal version. Does not distinguish sources, both openai tool_calls and qwen <tool_call> are put into the same list.
+#     Failed parsing content is kept as string directly.
 #     """
 #     results = []
 
-#     # OpenAI 格式
+#     # OpenAI format
 #     if isinstance(completion, dict) and "tool_calls" in completion:
 #         tool_calls = parse_tool_for_openai(completion=completion)
 #         results.extend(tool_calls)
 
-#     # Qwen 格式
-#     # 既可以传 str，也可能 dict 里嵌套有 "content" 字段存千问输出
+#     # Qwen format
+#     # Can pass str, or dict may have nested "content" field storing Qwen output
 #     if isinstance(completion, str):
 #         text = completion
 #     elif isinstance(completion, dict):
-#         # 在 dict 时也尝试抓取其中 "content"
+#         # When dict, also try to extract "content" from it
 #         text = completion.get("content", "")
 #     else:
 #         text = ""
@@ -66,7 +66,7 @@ def parse_tool(completion: dict) -> list:
 #             try:
 #                 item = json.loads(item)
 #             except Exception:
-#                 pass  # 解析失败用原字符串
+#                 pass  # On parse failure, use original string
 #             results.append(item)
 
 #     return results
