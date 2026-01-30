@@ -3,6 +3,7 @@ import torch.multiprocessing as mp
 import base64
 import aiohttp
 import base64
+import math
 import mimetypes
 import tenacity
 import threading
@@ -150,14 +151,14 @@ class DBIterableDataset(IterableDataset):
             if len(samples) == 0 or any(s is None for s in samples):
                 return None
             pad_to_multiple = (
-                self.args.max_prompt_tokens
+                self.args.max_tokens
                 if self.args.pp_size > 1 or self.args.pad_to_maximum
-                else self.args.tp_size * self.args.cp_size
+                else math.lcm(self.args.pad_to_multiple_of, self.args.tp_size * self.args.cp_size)
             )
             return _convert_data_into_inputs_labels(
                 samples,
                 processor=self.processing_class,
-                max_length=self.args.max_prompt_tokens,
+                max_length=self.args.max_tokens,
                 shift_labels=self.args.shift_labels,
                 pad_to_multiple_of=pad_to_multiple,
                 output_router_logits=self.args.output_router_logits,
@@ -195,7 +196,7 @@ class DBIterableDataset(IterableDataset):
                 cur_bsz = len(raw_batch)
 
                 # 如果当前 batch 的 bsz*len 还没达到阈值，尝试从队列中无阻塞地取更多样本并重打包
-                while seq_len * cur_bsz < self.args.max_prompt_tokens:
+                while seq_len * cur_bsz < self.args.max_tokens:
                     try:
                         extra = None
                         extra = self.fetch_cache.get(timeout=1)
@@ -222,7 +223,7 @@ class DBIterableDataset(IterableDataset):
 
                     new_seq_len = new_collated['input_ids'].shape[1]
                     new_bsz = len(raw_batch)
-                    if new_seq_len * new_bsz > self.args.max_prompt_tokens:
+                    if new_seq_len * new_bsz > self.args.max_tokens:
                         # 超过阈值，放弃新加入，使用之前较短的 batch
                         buffer.insert(0, raw_batch.pop())
                         break

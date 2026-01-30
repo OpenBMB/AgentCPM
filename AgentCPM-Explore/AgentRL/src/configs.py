@@ -204,6 +204,13 @@ class AgentTrainingConfig(TrainingArguments):
         }
     )
 
+    pad_to_multiple_of: int = field(
+        default=1,
+        metadata={
+            "help": "Padding to multiple of for the model. This is used to pad the inputs to the multiple of the specified value. "
+        }
+    )
+
     bypass_causal_mask_check: bool = field(
         default=False,
         metadata={
@@ -355,6 +362,13 @@ class AgentTrainingConfig(TrainingArguments):
         default=False,
         metadata={
             "help": "Whether to strictly enforce the importance weight bounds in [1-epsilon,1+epsilon+higher] by dropping out-of-bound samples."
+        }
+    )
+    
+    log_entropy: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to log the token-level entropy during training. If set to `True`, the entropy will be computed and logged in the training metrics."
         }
     )
     
@@ -525,14 +539,37 @@ class AgentTrainingConfig(TrainingArguments):
     mcp_server_name: str = field(
         default="all",
         metadata={
-            "help": "MCP server name to use. Use 'all' to use all available servers."
+            "help": (
+                "Which MCP server to call. "
+                "In MCPAPI mode (manager URL ends with /mcpapi), multiple servers can be aggregated. "
+                "Set a specific server name or use 'all' to aggregate every server. "
+                "Examples: 'web_search' targets only that server; 'all' aggregates all."
+            )
         }
     )
 
     mcp_manager_url: str = field(
         default="http://localhost:9876/mcpapi",
         metadata={
-            "help": "URL of the MCP manager service."
+            "help": (
+                "Endpoint for the MCP manager; it also selects the mode:\n"
+                "- MCPAPI (custom aggregator): URL ends with /mcpapi → uses MCPAPIHandler, supports multi-server aggregation and tool filtering.\n"
+                "  Example: 'http://localhost:9700/mcpapi' (custom manager with multiple servers).\n"
+                "- MCPSDK (official protocol): other URLs → uses official SDK (MCPHandler/MCPManager), connects to a single official MCP server (SSE/stdio).\n"
+                "  Example: 'http://localhost:8088/mcp' (official streamable HTTP service).\n"
+                "Must include scheme/host/port/path. The sampler routes to MCPAPIHandler or MCPHandler based on this."
+            )
+        }
+    )
+
+    mcp_auth_token: Optional[str] = field(
+        default=None,
+        metadata={
+            "help": (
+                "Optional Authorization token (Bearer) for MCP streamable HTTP (official MCPSDK/SSE). "
+                "If set, sent as 'Authorization: Bearer <token>' when connecting to the MCP server. "
+                "Ignored for the custom MCPAPI aggregator."
+            )
         }
     )
 
@@ -540,6 +577,13 @@ class AgentTrainingConfig(TrainingArguments):
         default=25,
         metadata={
             "help": "Maximum number of turns for MCP tool-using tasks."
+        }
+    )
+
+    min_turns: int = field(
+        default=1,
+        metadata={
+            "help": "Minimum number of turns for records to be trained. If the number of turns is less than this value, the record will be skipped."
         }
     )
 
@@ -577,6 +621,13 @@ class AgentTrainingConfig(TrainingArguments):
         metadata={
             "help": "Number of context error records (context_limit_error and turns_limit_error) to randomly reserve for training. "
             "This helps preserve important information about context-related failures while avoiding training on too many error records."
+        }
+    )
+
+    efficient_rewarding: bool = field(
+        default=False,
+        metadata={
+            "help": "Whether to enable efficient rewarding. If set to `True`, the sampler will reward the records with efficient way additionally."
         }
     )
 

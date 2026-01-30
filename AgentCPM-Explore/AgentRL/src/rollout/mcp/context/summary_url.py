@@ -20,26 +20,35 @@ def create_specialist_prompt(raw_content: str, question: Optional[str] = None, p
     user_prompt = f"""
         Please process the following webpage or local file content and user goal to extract relevant information:
 
-        ## **Webpage/Local file Content** 
-        {raw_content}
+        ## **Webpage/Local file Content** {raw_content}
 
         ## **User Goal**
         {user_goal_section}
 
         ## **Task Guidelines**
-        1. **Content Scanning for Rational**: Locate the **specific sections/data** directly related to the user's goal within the webpage content
-        2. **Key Extraction for Evidence**: Identify and extract the **most relevant information** from the content, you never miss any important information, output the **full original context** of the content as far as possible, it can be more than three paragraphs.
-        3. **Summary Output for Summary**: Organize into a concise paragraph with logical flow, prioritizing clarity and judge the contribution of the information to the goal.
+        1. **Rational & Step-by-Step Analysis**: 
+           - Scan the content to locate specific sections directly related to the user's goal.
+           - Perform a **step-by-step analysis** to evaluate *why* this information is relevant and how it addresses the user's specific request.
+        2. **Key Extraction for Evidence**: Identify and extract the **most relevant information**. Output the **full original context** (can be more than three paragraphs).
+        3. **Strict No-Calculation & Literal Extraction Policy**:
+            - **Rule**: You are strictly prohibited from performing any math (sum, average, etc.). You must act as a copy-paste tool for numbers.
+            - **Positive Example (Do This)**:
+              * *Source Text*: "Base Salary: $50,000. Annual Bonus: $10,000."
+              * *Your Output Must Be*: **"Base Salary: $50,000; Annual Bonus: $10,000"** (List them separately).
+            - **Negative Example (Don't Do This)**:
+              * *Wrong Output*: "Total Compensation: $60,000" (Do NOT sum them up).
+            - **Instruction**: Even if the user asks for a "Total" or "Result", providing the separate raw numbers found in the text is the ONLY correct answer.
+        4. **Report Output**: Based on the analysis above, organize the findings into a formal **Report**. Create a logical narrative that answers the user's goal using the extracted evidence.
 
         **Final Output Format: You MUST use Markdown with the following headings:**
         ## Rational
-        (Your analysis of relevance here)
+        (Your step-by-step analysis of the content and its relevance to the user goal)
 
         ## Evidence
-        (Your extracted evidence here)
+        (Your extracted evidence here. *Note: List only the raw, separated data exactly as it appears in the text.*)
 
-        ## Summary
-        (Your final summary here)
+        ## Report
+        (Your final organized report here)
         """
 
     return [{"role": "user", "content": user_prompt}]
@@ -52,7 +61,8 @@ async def _try_llm_call(
     max_retries: int = 3,
     retry_delay: int = 2,
     task_id: Optional[str] = None,
-    enable_logging: bool = False
+    enable_logging: bool = False,
+    extra_body: Optional[Dict[str, Any]] = None
 ) -> Tuple[Optional[str], Optional[Exception]]:
     """
     尝试调用LLM，返回 (response_text, error)
@@ -69,12 +79,23 @@ async def _try_llm_call(
     """
     current_retry_delay = retry_delay
     
+    # Use extra_body from config if provided, otherwise use default values
+    if extra_body is None:
+        extra_body = {
+            "temperature": 0.7,
+            "top_p": 0.95,
+            "top_k": 20,
+            "min_p": 0,
+            "chat_template_kwargs": {"enable_thinking": False},
+        }
+    
     for attempt in range(max_retries):
         try:
             response = await llm_client.chat.completions.create(
                 messages=messages, 
                 model=model,
-                timeout=120
+                timeout=180,
+                extra_body=extra_body,
             )
             full_response_text = response.choices[0].message.content
             
@@ -132,6 +153,7 @@ async def process_with_llm(
     max_retries = browse_agent_config.get("max_retries", 3)
     retry_delay = browse_agent_config.get("retry_delay", 2)
     enable_logging = browse_agent_config.get("enable_logging", False)
+    extra_body = browse_agent_config.get("extra_body", None)
     
     if not models:
         error_msg = "No models configured in browse_agent config"
@@ -152,7 +174,7 @@ async def process_with_llm(
             llm_client = AsyncOpenAI(api_key=api_key, base_url=base_url)
             logging.info(f"尝试使用 browse_agent model {i+1}: {model_name}")
             response_text, error = await _try_llm_call(
-                llm_client, messages, model_name, max_retries, retry_delay, task_id, enable_logging
+                llm_client, messages, model_name, max_retries, retry_delay, task_id, enable_logging, extra_body
             )
             if response_text is not None:
                 return response_text

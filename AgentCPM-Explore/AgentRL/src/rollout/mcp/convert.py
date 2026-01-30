@@ -10,7 +10,7 @@ from training.datasets import is_contained_in_prefix, preprocess_mm_messages_for
 from .models import MCPTask
 
 
-def should_skip_record(record: Record) -> bool:
+def should_skip_record(record: Record, args: Optional[AgentTrainingConfig] = None) -> bool:
     """
     Check if a record should be skipped based on status and final_answer.
     
@@ -24,7 +24,7 @@ def should_skip_record(record: Record) -> bool:
     if record.status == Record.Status.ABANDONED:
         logger.debug(f"Record {record.id} skipped: ABANDONED status")
         return True
-    
+        
     return False
 
 
@@ -82,7 +82,7 @@ async def convert_record_to_data_mcp(
     task = await record.task.fetch(True)
     
     # Skip records based on status and final_answer
-    if should_skip_record(record):
+    if should_skip_record(record, args):
         return
     
     # Collect valid samples from trajectory
@@ -150,6 +150,11 @@ async def convert_record_to_data_mcp(
         # use the advantage of the sample if it is not None and smaller than the calculated advantage
         if sample.advantage is not None:
             advantage = min(sample.advantage, advantage)
+        # advantage clipping
+        if sample.score <= 0.5:
+            advantage = min(advantage, 0)
+        else:
+            advantage = max(advantage, 0)
 
         
         # Apply advantage scaling (similar to tool_datasets.py)

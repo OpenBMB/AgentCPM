@@ -513,13 +513,14 @@ class AsyncTrainer(Trainer,ABC):
 
         with torch.no_grad():
             assistant_mask = labels.assistant_mask  # remove the first token assistant_mask
-            token_entropy = self.compute_token_entropy(logits)  # (B, T)
-            entropy = (token_entropy * assistant_mask).sum() / assistant_mask.sum().clamp_min(1)
-            entropy = entropy.item()
-            self._local_log({
-                "loss_token_count_per_batch": loss_tokens_count.item(),
-                "entropy": entropy,
-            })
+            if self.args.log_entropy:
+                token_entropy = self.compute_token_entropy(logits)  # (B, T)
+                entropy = (token_entropy * assistant_mask).sum() / assistant_mask.sum().clamp_min(1)
+                entropy = entropy.item()
+                self._local_log({
+                    "loss_token_count_per_batch": loss_tokens_count.item(),
+                    "entropy": entropy,
+                })
         
         return loss
 
@@ -681,10 +682,11 @@ class AsyncTrainer(Trainer,ABC):
                 clip_ratio = (is_clipped * assistant_mask).sum() / assistant_mask.sum().clamp_min(1)
                 clip_ratio = clip_ratio.item()
                 log_dict["clip_ratio"] = clip_ratio
-            token_entropy = self.compute_token_entropy(logits)  # (B, T)
-            entropy = (token_entropy * assistant_mask).sum() / assistant_mask.sum().clamp_min(1)
-            entropy = entropy.item()
-            log_dict["entropy"] = entropy
+            if self.args.log_entropy:
+                token_entropy = self.compute_token_entropy(logits)  # (B, T)
+                entropy = (token_entropy * assistant_mask).sum() / assistant_mask.sum().clamp_min(1)
+                entropy = entropy.item()
+                log_dict["entropy"] = entropy
             if self.args.out_of_date_decay is not None or self.args.strict_in_bound:
                 log_dict["out_of_date_ratio"] = ((out_of_bound_mask.float() * assistant_mask).sum() / assistant_mask.sum().clamp_min(1)).item()
             self._local_log(log_dict)

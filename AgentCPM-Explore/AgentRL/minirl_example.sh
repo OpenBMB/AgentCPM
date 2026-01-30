@@ -97,6 +97,7 @@ accelerate launch \
     --dataloader_prefetch_factor 4 \
     --balance_sample false \
     --accelerator_config '{"split_batches":true}' \
+    --pad_to_multiple_of 4096 \
     \
     --enable_sampling true \
     --agent_config_path "assets/agent_config.yml" \

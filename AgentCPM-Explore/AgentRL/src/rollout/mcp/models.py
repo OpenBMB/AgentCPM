@@ -14,4 +14,5 @@ class MCPTask(Task):
     task_answer: Dict[str, Any] = {}
     scorer: str = "agentcpm"
     task_id: Optional[str] = None
+    turns: Optional[list[int]] = []
 

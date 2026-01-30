@@ -1,4 +1,5 @@
 services:
+  # 简单单节点 MongoDB 配置（原有配置）
   mongo:
     image: mongo
     container_name: mongo
@@ -11,10 +12,158 @@ services:
     volumes:
       - mongo_data:/data/db
 
+  # MongoDB 副本集配置（rs0）
+  mongo-primary:
+    image: mongo:8.0
+    container_name: mongo-primary
+    restart: unless-stopped
+    command: mongod --replSet rs0 --bind_ip_all --port 27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+      - "27018:27017"  # 映射到外部端口 27018
+    volumes:
+      - mongo_primary_data:/data/db
+      - mongo_primary_config:/data/configdb
+    networks:
+      - mongo-network
+    healthcheck:
+      test: mongosh --host localhost:27017 -u root -p password --authenticationDatabase admin --eval "db.runCommand('ping').ok" --quiet || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  mongo-secondary:
+    image: mongo:8.0
+    container_name: mongo-secondary
+    restart: unless-stopped
+    command: mongod --replSet rs0 --bind_ip_all --port 27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongo_secondary_data:/data/db
+      - mongo_secondary_config:/data/configdb
+    networks:
+      - mongo-network
+    depends_on:
+      - mongo-primary
+    healthcheck:
+      test: mongosh --host localhost:27017 -u root -p password --authenticationDatabase admin --eval "db.runCommand('ping').ok" --quiet || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  mongo-arbiter:
+    image: mongo:8.0
+    container_name: mongo-arbiter
+    restart: unless-stopped
+    command: mongod --replSet rs0 --bind_ip_all --port 27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - mongo_arbiter_data:/data/db
+      - mongo_arbiter_config:/data/configdb
+    networks:
+      - mongo-network
+    depends_on:
+      - mongo-primary
+    healthcheck:
+      test: mongosh --host localhost:27017 -u root -p password --authenticationDatabase admin --eval "db.runCommand('ping').ok" --quiet || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  mongo-init:
+    image: mongo:8.0
+    container_name: mongo-init
+    restart: "no"
+    depends_on:
+      mongo-primary:
+        condition: service_healthy
+      mongo-secondary:
+        condition: service_healthy
+      mongo-arbiter:
+        condition: service_healthy
+    networks:
+      - mongo-network
+    entrypoint: >
+      bash -c "
+      echo 'Waiting for MongoDB nodes to be ready...' &&
+      sleep 15 &&
+      echo 'Initializing replica set...' &&
+      mongosh --host mongo-primary:27017 -u root -p password --authenticationDatabase admin --eval '
+        try {
+          var status = rs.status();
+          print(\"Replica set already initialized\");
+        } catch (e) {
+          print(\"Initializing replica set...\");
+        rs.initiate({
+          _id: \"rs0\",
+          members: [
+            { _id: 0, host: \"mongo-primary:27017\", priority: 2 },
+            { _id: 1, host: \"mongo-secondary:27017\", priority: 1 },
+            { _id: 2, host: \"mongo-arbiter:27017\", arbiterOnly: true }
+          ]
+          });
+          print(\"Replica set initialization started\");
+        }
+      ' &&
+      echo 'Replica set initialization completed'
+      "
+
 volumes:
+  # 简单单节点 MongoDB 数据卷
   mongo_data:
     driver: local
     driver_opts:
       type: none
       device: ./data
       o: bind
+  
+  # 副本集数据卷
+  mongo_primary_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/primary
+      o: bind
+  mongo_primary_config:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/primary-config
+      o: bind
+  mongo_secondary_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/secondary
+      o: bind
+  mongo_secondary_config:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/secondary-config
+      o: bind
+  mongo_arbiter_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/arbiter
+      o: bind
+  mongo_arbiter_config:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./data/arbiter-config
+      o: bind
+
+networks:
+  mongo-network:
+    driver: bridge

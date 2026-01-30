@@ -19,6 +19,7 @@ from transformers import AutoTokenizer
 from ..sampler import AsyncSampler
 from .models import MCPTask
 from .mcpapi import MCPAPIHandler, parse_tool, to_dict
+from .mcp import MCPHandler
 from .context.summary_url import summary_url_content
 from .context.discard_all_tools import reset_messages
 from ._rewarding import apply_mcp_rewarding_logic
@@ -174,17 +175,20 @@ class MCPSampler(AsyncSampler):
             split=split,
             **kwargs
         )
-        # Initialize MCPAPI handler using config values
+        # Initialize MCP handler based on the manager URL
+        # If URL ends with "/mcpapi", use our custom MCPAPI implementation
+        # Otherwise, use official MCP Streamable HTTP protocol
         if config.mcp_manager_url.endswith("/mcpapi"):
             self.mcp_handler = MCPAPIHandler(
                 server_name=config.mcp_server_name,
                 manager_url=config.mcp_manager_url
             )
-        # TODO: Support official MCP
-        # else:
-        #     self.mcp_handler = MCPHandler(
-        #         manager_url=config.mcp_manager_url
-        #     )
+        else:
+            # Official MCP Streamable HTTP
+            self.mcp_handler = MCPHandler(
+                server_url=config.mcp_manager_url,
+                auth_token=getattr(config, "mcp_auth_token", None)
+            )
         
         self.context = {
             "context_tokens": 0,
@@ -335,7 +339,7 @@ class MCPSampler(AsyncSampler):
                 task: MCPTask = await self.task_class.find_one(
                     self.task_class.id == self.task.id, with_children=True
                 ).update({
-                    "$push": {"scores": score}
+                    "$push": {"scores": score,"turns": self.context["context_turns"]}
                 }, response_type=UpdateResponse.NEW_DOCUMENT)
                 
                 # MCP-specific rewarding logic (similar to tool_rewarding.py)
@@ -679,17 +683,18 @@ class MCPSampler(AsyncSampler):
         browse_tools = self.agent_configs["browse"].get("browse_tools", ["fetch_url", "visit"])
         if tool_name in browse_tools and "purpose" not in arguments:
             # First, try to convert goal to purpose if goal exists
-            if "goal" in arguments:
-                arguments["purpose"] = arguments.pop("goal")
-            else:
-                # If no goal, use default purpose from config
-                default_purpose = self.agent_configs["browse"].get("default_purpose", {}).get(
-                    tool_name, "Summarize the main content of this page."
-                )
-                arguments["purpose"] = default_purpose
-            # Update function arguments
-            function["arguments"] = json.dumps(arguments)
-            tool_call["function"] = function
+            if "url" in arguments:
+                if "goal" in arguments:
+                    arguments["purpose"] = arguments.pop("goal")
+                else:
+                    # If no goal, use default purpose from config
+                    default_purpose = self.agent_configs["browse"].get("default_purpose", {}).get(
+                        tool_name, "Summarize the main content of this page."
+                    )
+                    arguments["purpose"] = default_purpose
+                # Update function arguments
+                function["arguments"] = json.dumps(arguments)
+                tool_call["function"] = function
         
         if tool_name in browse_tools and "url" in arguments:
             if isinstance(arguments["url"], str):

@@ -74,6 +74,10 @@ def load_agent_config(config_path: str) -> Dict[str, Any]:
         if len(browse_agent["models"]) == 0:
             raise ValueError("browse_agent.models list cannot be empty")
         
+        # Validate optional extra_body if present
+        if "extra_body" in browse_agent and not isinstance(browse_agent["extra_body"], dict):
+            raise ValueError("browse_agent.extra_body must be a dictionary if provided")
+        
         # Validate scorer_agent
         scorer_agent = config["scorer_agent"]
         if "models" not in scorer_agent or not isinstance(scorer_agent["models"], list):

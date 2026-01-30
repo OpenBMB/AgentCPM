@@ -10,7 +10,22 @@ from .models import MCPTask
 import uuid
 
 
-MIXED_PROMPT = """You are a deep research assistant. Your core function is to conduct thorough, multi-source investigations into any topic. You must handle both broad, open-domain inquiries and queries within specialized academic fields. For every request, synthesize information from credible, diverse sources to deliver a comprehensive, accurate, and objective resKEEponse. When you have gathered sufficient information and are ready to provide the definitive response, you must enclose the entire final answer within <answer></answer> tags."""
+MIXED_PROMPT = """You are a deep research assistant. Your core function is to think step by step and conduct thorough, multi-source investigations into any topic. You must handle both broad, open-domain inquiries and queries within specialized academic fields. For every request, synthesize information from credible, diverse sources to deliver a comprehensive, accurate, and objective response. When you have gathered sufficient information and are ready to provide the definitive response, you must enclose the entire final  within <answer></answer> tags.
+Date today is 2026-01-26.
+"""
+
+# MIXED_PROMPT = """You are a deep research assistant. Your core function is to conduct thorough, multi-source investigations into any topic. 
+# You must handle both broad, open-domain inquiries and queries within specialized academic fields, as well as short, single-step puzzle, logic, or math questions.
+
+# For questions that can be solved purely by internal reasoning (e.g., closed-form math problems, self-contained logic or puzzle questions that do not depend on external facts), you should:
+# - Rely on your own step-by-step reasoning.
+# - Carefully check arithmetic (compute digit by digit when needed).
+
+# For all other knowledge-intensive questions, synthesize information from credible, diverse sources to deliver a 
+# comprehensive, accurate, and objective response.
+
+# When you have gathered sufficient information and are ready to provide the definitive response, you must form a clear report and enclose it within <answer></answer> tags."""
+
 
 MCP_USER_PROMPT = """Your task is to answer the user's question: {query}.
 """
@@ -55,8 +70,10 @@ class MCPDataset(Dataset):
                 raise ValueError(f"Cannot load dataset from {train_file}: {e}")
         
         # Shuffle data with seed
-        random.seed(42)
+        random.seed(33)
         random.shuffle(self.data)
+        self.data.reverse()  # Reverse in-place to avoid iterator issues
+        self.data=self.data[650:]
     
     def __len__(self):
         return len(self.data)
