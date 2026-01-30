@@ -72,8 +72,6 @@ class MCPDataset(Dataset):
         # Shuffle data with seed
         random.seed(33)
         random.shuffle(self.data)
-        self.data.reverse()  # Reverse in-place to avoid iterator issues
-        self.data=self.data[650:]
     
     def __len__(self):
         return len(self.data)
