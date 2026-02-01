@@ -308,10 +308,10 @@ def run_post_evaluation(args: argparse.Namespace):
         command.extend(['--llm-judge-report-file', str(llm_judge_report_file)])
         
         if args.llm_judge_api_key:
-            command.extend(['--api-key', args.llm_judge_api_key])
+            command.extend(['--llm-judge-api-key', args.llm_judge_api_key])
         # Check if base_url is None or empty string
         if args.llm_judge_api_base: 
-            command.extend(['--api-base', args.llm_judge_api_base])
+            command.extend(['--llm-judge-api-base', args.llm_judge_api_base])
 
     print("Executing analysis command:")
     print(" ".join(f'"{c}"' if " " in c else c for c in command))
