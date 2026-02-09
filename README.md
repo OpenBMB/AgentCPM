@@ -26,14 +26,18 @@
 
 ## Table of Contents
 
+- [Latest News](#latest-news)
+  - [Table of Contents](#table-of-contents)
 - [Overview](#overview)
 - [Model List](#model-list)
-- [AgentCPM-Explore](#agentcpm-explore)
-  - [Demo](#demo)
-  - [QuickStart](#quickstart)
-- [AgentCPM-Report](#agentcpm-report)
-  - [Demo](#demo-1)
-  - [QuickStart](#quickstart-1)
+  - [AgentCPM-Explore](#agentcpm-explore)
+    - [Demo](#demo)
+    - [QuickStart](#quickstart)
+  - [AgentCPM-Report](#agentcpm-report)
+    - [Introduction](#introduction)
+    - [Demo](#demo-1)
+    - [QuickStart](#quickstart-1)
+      - [Docker Deployment](#docker-deployment)
 - [License](#license)
 - [Citation](#citation)
 - [Explore More](#explore-more)
@@ -48,7 +52,7 @@ AgentCPM is a series of open-source LLM agents jointly developed by [THUNLP (Tsi
 | Model            | Download Links                                                                                                                                | Open-Sourced Content | Technical Report | How to Use |
 |------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|-----------|
 | [AgentCPM-Explore](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Explore)          | [🤗 Hugging Face](https://huggingface.co/openbmb/AgentCPM-Explore)<br> [🤖 ModelScope](https://modelscope.cn/models/OpenBMB/AgentCPM-Explore/)                  |  [AgentDock](./AgentCPM-Explore/AgentDock): unified tool sandbox management & scheduling platform  <br> [AgentRL](./AgentCPM-Explore/AgentRL): fully asynchronous agent reinforcement learning framework  <br> [AgentToLeaP](./AgentCPM-Explore/AgentToLeaP): one-click evaluation framework for agent tool-learning capability | [AgentCPM-Explore: Realizing Long-Horizon Deep Exploration for Edge-Scale Agents](http://arxiv.org/abs/2602.06485) | [README.md](./AgentCPM-Explore)
-| [AgentCPM-Report](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Report)          | [🤗 Hugging Face](https://huggingface.co/openbmb/AgentCPM-Report)<br> [🤖 ModelScope](https://modelscope.cn/models/OpenBMB/AgentCPM-Report/)                  |  [UltraRAG](https://github.com/OpenBMB/UltraRAG): low-code RAG framework   | Coming Soon | [README.md](./AgentCPM-Report)
+| [AgentCPM-Report](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Report)          | [🤗 Hugging Face](https://huggingface.co/openbmb/AgentCPM-Report)<br> [🤖 ModelScope](https://modelscope.cn/models/OpenBMB/AgentCPM-Report/)                  |  [UltraRAG](https://github.com/OpenBMB/UltraRAG): low-code RAG framework   | [AgentCPM-Report: Interleaving Drafting and Deepening for Open-Ended Deep Research](https://arxiv.org/abs/2602.06540) | [README.md](./AgentCPM-Report)
 
 
 ## AgentCPM-Explore
@@ -186,11 +190,14 @@ If **AgentCPM-Explore** is useful for your research, please cite the codebase:
 If **AgentCPM-Report** is helpful for your research, you can cite it as follows:
 
 ```bibtex
-@software{AgentCPMReport2026,
-  title  = {AgentCPM-Report: Gemini-2.5-pro-DeepResearch Level Local DeepResearch},
-  author = {Yishan Li, Wentong Chen, Yukun Yan, Mingwei Li, Sen Mei, Xiaorong Wang, Kunpeng Liu, Xin Cong, Shuo Wang, Zhong Zhang, Yaxi Lu, Zhenghao Liu, Yankai Lin, Zhiyuan Liu, Maosong Sun},
-  year   = {2026},
-  url    = {https://github.com/OpenBMB/AgentCPM}
+@misc{li2026agentcpmreport,
+      title={AgentCPM-Report: Interleaving Drafting and Deepening for Open-Ended Deep Research}, 
+      author={Yishan Li and Wentong Chen and Yukun Yan and Mingwei Li and Sen Mei and Xiaorong Wang and Kunpeng Liu and Xin Cong and Shuo Wang and Zhong Zhang and Yaxi Lu and Zhenghao Liu and Yankai Lin and Zhiyuan Liu and Maosong Sun},
+      year={2026},
+      eprint={2602.06540},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2602.06540}, 
 }
 ```
 

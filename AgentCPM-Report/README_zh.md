@@ -7,6 +7,7 @@
 <a href='https://huggingface.co/openbmb/AgentCPM-Report'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-AgentCPM--Report-yellow'>
 <a href='https://huggingface.co/openbmb/AgentCPM-Report-GGUF'><img src='https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-AgentCPM--Report--GGUF-yellow'>
 <a href='https://github.com/OpenBMB/UltraRAG'><img src='https://img.shields.io/badge/GitHub-UltraRAG-blue?logo=github'>
+<a href='https://arxiv.org/abs/2602.06540'><img src='https://img.shields.io/badge/arXiv-2602.06540-red'>
 </p>
 
 <p align="center">
@@ -345,10 +346,13 @@ AgentCPM-Report/
 如果 **AgentCPM-Report** 对您的研究有所帮助，您可以按照如下方式进行引用：
 
 ```bibtex
-@software{AgentCPMReport2026,
-  title  = {AgentCPM-Report: Gemini-2.5-pro-DeepResearch Level Local DeepResearch},
-  author = {Yishan Li, Wentong Chen, Yukun Yan, Mingwei Li, Sen Mei, Xiaorong Wang, Kunpeng Liu, Xin Cong, Shuo Wang, Zhong Zhang, Yaxi Lu, Zhenghao Liu, Yankai Lin, Zhiyuan Liu, Maosong Sun},
-  year   = {2026},
-  url    = {https://github.com/OpenBMB/AgentCPM}
+@misc{li2026agentcpmreport,
+      title={AgentCPM-Report: Interleaving Drafting and Deepening for Open-Ended Deep Research}, 
+      author={Yishan Li and Wentong Chen and Yukun Yan and Mingwei Li and Sen Mei and Xiaorong Wang and Kunpeng Liu and Xin Cong and Shuo Wang and Zhong Zhang and Yaxi Lu and Zhenghao Liu and Yankai Lin and Zhiyuan Liu and Maosong Sun},
+      year={2026},
+      eprint={2602.06540},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2602.06540}, 
 }
 ```

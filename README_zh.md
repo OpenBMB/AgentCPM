@@ -18,14 +18,20 @@
 
 ## 目录
 
+- [最新消息](#最新消息)
+  - [目录](#目录)
 - [概述](#概述)
 - [模型列表](#模型列表)
-- [AgentCPM-Explore](#agentcpm-explore)
-  - [示例视频](#示例视频)
-  - [快速开始](#快速开始)
-- [AgentCPM-Report](#agentcpm-report)
-  - [示例视频](#示例视频)
-  - [快速开始](#快速开始-1)
+  - [AgentCPM-Explore](#agentcpm-explore)
+    - [简介](#简介)
+    - [示例视频](#示例视频)
+    - [快速开始](#快速开始)
+  - [AgentCPM-Report](#agentcpm-report)
+    - [简介](#简介-1)
+    - [示例视频](#示例视频-1)
+    - [快速开始](#快速开始-1)
+      - [Docker部署](#docker部署)
+      - [Huggingface不可用时](#huggingface不可用时)
 - [开源协议](#开源协议)
 - [引用](#引用)
 - [更多项目](#更多项目)
@@ -39,7 +45,7 @@ AgentCPM 是由[清华大学自然语言处理实验室（THUNLP）](https://nlp
 | 模型            | 下载链接                                                                                                                                | 开源内容 | 技术报告 | 如何使用 |
 |------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|-----------|
 | [AgentCPM-Explore](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Explore/README_zh.md)          | [🤗 Hugging Face](https://huggingface.co/openbmb/AgentCPM-Explore)<br> [🤖 ModelScope](https://modelscope.cn/models/OpenBMB/AgentCPM-Explore/)                  |  [AgentDock](./AgentCPM-Explore/AgentDock/README_zh.md): 工具沙盒环境统一管理调度平台  <br> [AgentRL](./AgentCPM-Explore/AgentRL/README_zh.md): 全异步智能体强化学习框架  <br> [AgentToLeaP](./AgentCPM-Explore/AgentToLeaP/README_zh.md): 智能体工具学习能力一键测评框架 | [AgentCPM-Explore：实现端侧规模智能体的深度探索能力](https://arxiv.org/abs/2602.06485) | [README_zh.md](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Explore/README_zh.md)
-| [AgentCPM-Report](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Report/README_zh.md)          | [🤗 Hugging Face](https://huggingface.co/openbmb/AgentCPM-Report)<br> [🤖 ModelScope](https://modelscope.cn/models/OpenBMB/AgentCPM-Report/)                  |  [UltraRAG](https://github.com/OpenBMB/UltraRAG): 低代码RAG框架   | 即将发布 | [README_zh.md](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Report/README_zh.md)
+| [AgentCPM-Report](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Report/README_zh.md)          | [🤗 Hugging Face](https://huggingface.co/openbmb/AgentCPM-Report)<br> [🤖 ModelScope](https://modelscope.cn/models/OpenBMB/AgentCPM-Report/)                  |  [UltraRAG](https://github.com/OpenBMB/UltraRAG): 低代码RAG框架   | [AgentCPM-Report: Interleaving Drafting and Deepening for Open-Ended Deep Research](https://arxiv.org/abs/2602.06540) | [README_zh.md](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Report/README_zh.md)
 
 
 ## AgentCPM-Explore
@@ -183,11 +189,14 @@ VLLM_SERVED_MODEL_NAME=agentcpm-report
 如果 **AgentCPM-Report** 对您的研究有所帮助，您可以按照如下方式进行引用：
 
 ```bibtex
-@software{AgentCPMReport2026,
-  title  = {AgentCPM-Report: Gemini-2.5-pro-DeepResearch Level Local DeepResearch},
-  author = {Yishan Li, Wentong Chen, Yukun Yan, Mingwei Li, Sen Mei, Xiaorong Wang, Kunpeng Liu, Xin Cong, Shuo Wang, Zhong Zhang, Yaxi Lu, Zhenghao Liu, Yankai Lin, Zhiyuan Liu, Maosong Sun},
-  year   = {2026},
-  url    = {https://github.com/OpenBMB/AgentCPM}
+@misc{li2026agentcpmreport,
+      title={AgentCPM-Report: Interleaving Drafting and Deepening for Open-Ended Deep Research}, 
+      author={Yishan Li and Wentong Chen and Yukun Yan and Mingwei Li and Sen Mei and Xiaorong Wang and Kunpeng Liu and Xin Cong and Shuo Wang and Zhong Zhang and Yaxi Lu and Zhenghao Liu and Yankai Lin and Zhiyuan Liu and Maosong Sun},
+      year={2026},
+      eprint={2602.06540},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2602.06540}, 
 }
 ```
 
