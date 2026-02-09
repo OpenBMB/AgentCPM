@@ -9,8 +9,15 @@
 </p>
 
 
+<p align="center">
+  <span style="display: inline-flex; align-items: center; justify-content: center; margin-right: 2px;">
+    <img src="./assets/wechat.png" alt="WeChat" style="margin-right: 4px;">
+    <a href="assets/wechat.md" target="_blank"> WeChat</a>
+  </span>
+</p>
 
 # Latest News
+
 
 * [2026-01-20] 🚀🚀🚀 We have open-sourced **AgentCPM-Report**, built on MiniCPM4.1-8B, which can rival top closed-source commercial systems for report generation such as Gemini-2.5-pro-DeepResearch.
 
