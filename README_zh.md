@@ -38,7 +38,7 @@ AgentCPM 是由[清华大学自然语言处理实验室（THUNLP）](https://nlp
 
 | 模型            | 下载链接                                                                                                                                | 开源内容 | 技术报告 | 如何使用 |
 |------------------|-----------------------------------------------------------------------------------------------------------------------------------------------|------------|-----------|-----------|
-| [AgentCPM-Explore](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Explore/README_zh.md)          | [🤗 Hugging Face](https://huggingface.co/openbmb/AgentCPM-Explore)<br> [🤖 ModelScope](https://modelscope.cn/models/OpenBMB/AgentCPM-Explore/)                  |  [AgentDock](./AgentCPM-Explore/AgentDock/README_zh.md): 工具沙盒环境统一管理调度平台  <br> [AgentRL](./AgentCPM-Explore/AgentRL/README_zh.md): 全异步智能体强化学习框架  <br> [AgentToLeaP](./AgentCPM-Explore/AgentToLeaP/README_zh.md): 智能体工具学习能力一键测评框架 | 即将发布 | [README_zh.md](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Explore/README_zh.md)
+| [AgentCPM-Explore](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Explore/README_zh.md)          | [🤗 Hugging Face](https://huggingface.co/openbmb/AgentCPM-Explore)<br> [🤖 ModelScope](https://modelscope.cn/models/OpenBMB/AgentCPM-Explore/)                  |  [AgentDock](./AgentCPM-Explore/AgentDock/README_zh.md): 工具沙盒环境统一管理调度平台  <br> [AgentRL](./AgentCPM-Explore/AgentRL/README_zh.md): 全异步智能体强化学习框架  <br> [AgentToLeaP](./AgentCPM-Explore/AgentToLeaP/README_zh.md): 智能体工具学习能力一键测评框架 | [AgentCPM-Explore：实现端侧规模智能体的深度探索能力](https://arxiv.org/abs/2602.06485) | [README_zh.md](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Explore/README_zh.md)
 | [AgentCPM-Report](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Report/README_zh.md)          | [🤗 Hugging Face](https://huggingface.co/openbmb/AgentCPM-Report)<br> [🤖 ModelScope](https://modelscope.cn/models/OpenBMB/AgentCPM-Report/)                  |  [UltraRAG](https://github.com/OpenBMB/UltraRAG): 低代码RAG框架   | 即将发布 | [README_zh.md](https://github.com/OpenBMB/AgentCPM/blob/main/AgentCPM-Report/README_zh.md)
 
 
@@ -166,11 +166,17 @@ VLLM_SERVED_MODEL_NAME=agentcpm-report
 如果 **AgentCPM-Explore** 对您的研究有帮助，您可以按照如下方式进行引用
 
 ```bibtex
-@software{AgentCPMExplore2026,
-  title  = {AgentCPM-Explore: An End-to-End Infrastructure for Training and Evaluating LLM Agents},
-  author = {Haotian Chen and Xin Cong and Shengda Fan and Yuyang Fu and Ziqin Gong and Yaxi Lu and Yishan Li and Boye Niu and Chengjun Pan and Zijun Song and Huadong Wang and Yesai Wu and Yueying Wu and Zihao Xie and Yukun Yan and Zhong Zhang and Yankai Lin and Zhiyuan Liu and Maosong Sun},
-  year   = {2026},
-  url    = {https://github.com/OpenBMB/AgentCPM}
+@misc{chen2026agentcpmexplore,
+  title = {{{AgentCPM-Explore}}: {{Realizing Long-Horizon Deep Exploration}} for {{Edge-Scale Agents}}},
+  author = {Chen, Haotian and Cong, Xin and Fan, Shengda and Fu, Yuyang and Gong, Ziqin and Lu, Yaxi and Li, Yishan and Niu, Boye and Pan, Chengjun and Song, Zijun and Wang, Huadong and Wu, Yesai and Wu, Yueying and Xie, Zihao and Yan, Yukun and Zhang, Zhong and Lin, Yankai and Liu, Zhiyuan and Sun, Maosong},
+  year = 2026,
+  month = feb,
+  number = {arXiv:2602.06485},
+  eprint = {2602.06485},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2602.06485},
+  archiveprefix = {arXiv},
+  langid = {english}
 }
 ```
 
