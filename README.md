@@ -162,11 +162,17 @@ You can read more tutorials about AgentCPM-Report from the [tutorial](https://ul
 If **AgentCPM-Explore** is useful for your research, please cite the codebase:
 
 ```bibtex
-@software{AgentCPMExplore2026,
-  title  = {AgentCPM-Explore: An End-to-End Infrastructure for Training and Evaluating LLM Agents},
-  author = {Haotian Chen and Xin Cong and Shengda Fan and Yuyang Fu and Ziqin Gong and Yaxi Lu and Yishan Li and Boye Niu and Chengjun Pan and Zijun Song and Huadong Wang and Yesai Wu and Yueying Wu and Zihao Xie and Yukun Yan and Zhong Zhang and Yankai Lin and Zhiyuan Liu and Maosong Sun},
-  year   = {2026},
-  url    = {https://github.com/OpenBMB/AgentCPM}
+@misc{chen2026agentcpmexplore,
+  title = {{{AgentCPM-Explore}}: {{Realizing Long-Horizon Deep Exploration}} for {{Edge-Scale Agents}}},
+  author = {Chen, Haotian and Cong, Xin and Fan, Shengda and Fu, Yuyang and Gong, Ziqin and Lu, Yaxi and Li, Yishan and Niu, Boye and Pan, Chengjun and Song, Zijun and Wang, Huadong and Wu, Yesai and Wu, Yueying and Xie, Zihao and Yan, Yukun and Zhang, Zhong and Lin, Yankai and Liu, Zhiyuan and Sun, Maosong},
+  year = 2026,
+  month = feb,
+  number = {arXiv:2602.06485},
+  eprint = {2602.06485},
+  publisher = {arXiv},
+  doi = {10.48550/arXiv.2602.06485},
+  archiveprefix = {arXiv},
+  langid = {english}
 }
 ```
 
