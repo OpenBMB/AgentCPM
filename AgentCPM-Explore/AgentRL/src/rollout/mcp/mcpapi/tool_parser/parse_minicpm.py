@@ -127,7 +127,7 @@ def parse_tool_for_minicpm3(
             return tool_calls
         else:
             return []
-    except:
+    except Exception:
         return []
 
 if __name__ == "__main__":
