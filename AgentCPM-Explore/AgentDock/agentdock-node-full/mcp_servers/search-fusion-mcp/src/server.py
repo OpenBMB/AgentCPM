@@ -540,10 +540,6 @@ class SearchFusionServer:
             asyncio.run(self.cleanup())
 
 
-os.environ["GOOGLE_API_KEY"] = "AIzaSyCn7FiDikPiMxHzG840RGSLuQtgCbmDAhg"
-os.environ["GOOGLE_CSE_ID"] = "757e71991ac034e0e"
-os.environ["EXA_API_KEY"] = "4bdfafc2-9575-402d-a8df-0f88b2a4b024"
-
 def main(transport: Optional[str]=None):
     """Main entry function"""
     server = SearchFusionServer()

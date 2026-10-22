@@ -43,7 +43,20 @@ AgentDock/
 
 ## 🚀 Quick Start
 
-### Option 1: Pull from Docker Hub (Recommended)
+### Security configuration (required)
+
+This version rejects unauthenticated manager and node tool requests. Set two different strong random values in `.env`:
+
+```bash
+AGENTDOCK_API_TOKEN=$(openssl rand -hex 32)
+AGENTDOCK_NODE_API_TOKEN=$(openssl rand -hex 32)
+```
+
+The manager token is only for manager APIs; the node token is only injected by the manager into nodes. Rebuild all services from this source checkout instead of continuing to use old Docker Hub node images. Any search or model API keys previously exposed in the repository must be revoked and regenerated with their providers.
+
+### Option 1: Pull from Docker Hub (legacy images only)
+
+The old Docker Hub Manager/Node images do not contain these security fixes. Do not use `docker-compose-hub.yml` as the production remediation; use the source build below.
 
 The fastest way to get started - no build required!
 
@@ -71,7 +84,7 @@ docker compose -f docker-compose-hub.yml up -d
 
 **3. Access Dashboard**
 
-Open browser: `http://localhost:8080`
+Open browser: `http://localhost:8080`, then sign in with `AGENTDOCK_API_TOKEN`.
 
 #### Docker Hub Images
 
@@ -149,6 +162,10 @@ Open browser: `http://localhost:8080`
 |----------|-------------|----------|
 | `MONGODB_USERNAME` | MongoDB username | ✅ |
 | `MONGODB_PASSWORD` | MongoDB password | ✅ |
+| `AGENTDOCK_API_TOKEN` | Manager API token | ✅ |
+| `AGENTDOCK_NODE_API_TOKEN` | Node API token; must differ from manager token | ✅ |
+| `READ_FILE_LLM_API_KEY` | File reader LLM API key | ❌ |
+| `READ_FILE_LLM_BASE_URL` | File reader LLM base URL | ❌ |
 | `JINA_API_KEY` | Jina Reader API key | ❌ |
 | `GOOGLE_SERP_API_KEY` | Google SERP API key | ❌ |
 

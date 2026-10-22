@@ -56,7 +56,20 @@ AgentDock/
 
 ## 🚀 快速启动（Quick Start）
 
-### 方式一：从 Docker Hub 拉取（推荐）
+### 安全配置（必需）
+
+本版本拒绝未认证访问管理端和节点工具接口。请在 `.env` 中设置两个不同的高强度随机值：
+
+```bash
+AGENTDOCK_API_TOKEN=$(openssl rand -hex 32)
+AGENTDOCK_NODE_API_TOKEN=$(openssl rand -hex 32)
+```
+
+管理端 Token 只用于管理 API，节点 Token 只由管理端注入节点。请使用源码重新构建服务，不要继续使用旧的 Docker Hub 节点镜像。历史上暴露过的搜索和模型 API Key 必须在服务商侧撤销并重新生成。
+
+### 方式一：从 Docker Hub 拉取（仅适用于未修复旧版本）
+
+Docker Hub 中的旧版 Manager/Node 镜像不包含本次安全修复。不要用 `docker-compose-hub.yml` 作为生产修复方案；请使用下面的源码构建方式。
 
 无需本地构建，开箱即用！
 
@@ -84,7 +97,7 @@ docker compose -f docker-compose-hub.yml up -d
 
 **3. 访问管理界面**
 
-打开浏览器：`http://localhost:8080`
+打开浏览器：`http://localhost:8080`，然后使用 `AGENTDOCK_API_TOKEN` 登录。
 
 #### Docker Hub 镜像列表
 
@@ -166,6 +179,10 @@ docker compose -f docker-compose.cn.yml up -d
 |------|------|---------|
 | `MONGODB_USERNAME` | MongoDB 用户名 | ✅ |
 | `MONGODB_PASSWORD` | MongoDB 密码 | ✅ |
+| `AGENTDOCK_API_TOKEN` | 管理端 API Token | ✅ |
+| `AGENTDOCK_NODE_API_TOKEN` | 节点 API Token，必须与管理端不同 | ✅ |
+| `READ_FILE_LLM_API_KEY` | 文件解析 LLM API Key | ❌ |
+| `READ_FILE_LLM_BASE_URL` | 文件解析 LLM Base URL | ❌ |
 | `JINA_API_KEY` | Jina Reader API Key | ❌ |
 | `GOOGLE_SERP_API_KEY` | Google SERP API Key | ❌ |
 

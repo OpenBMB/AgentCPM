@@ -15,10 +15,10 @@ mcp = FastMCP("research_tools")
 
 # Environment variables
 # Serper API配置 (作为降级备选)
-SERPER_KEY = os.getenv("SERPER_KEY", "b54f3943a99d5757b7ae1db7ccc59a7036fa368c")
-JINA_API_KEY = os.getenv("JINA_API_KEY", "jina_c511d1c6d25e4847ba1828e7589e0d59KJ1-hwsQZda0SFySMUY4S-_676sF")
+SERPER_KEY = os.getenv("SERPER_KEY", "")
+JINA_API_KEY = os.getenv("JINA_API_KEY", "")
 # 新的Google Serp API配置
-GOOGLE_SERP_API_KEY = os.getenv("GOOGLE_SERP_API_KEY", "78fde22300be70ae31f3c4b7c70f21a7")
+GOOGLE_SERP_API_KEY = os.getenv("GOOGLE_SERP_API_KEY", "")
 GOOGLE_SERP_API_URL_CN = "https://api.serp.hk/serp/google/search/advanced"  # 国内入口
 GOOGLE_SERP_API_URL_GLOBAL = "https://api.serp.global/serp/google/search/advanced"  # 国外入口
 

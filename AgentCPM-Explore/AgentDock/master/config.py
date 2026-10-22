@@ -51,6 +51,7 @@ class AgentDockConfig(pydantic.BaseModel, extra='forbid'):
         health_check_interval: int = 1
         health_check: bool = True
         creation_kwargs: Dict[str, Any] = {}
+        allowed_images: list[str] = []
         device_requests: Any | None = None
     
     node: NodeConfig = NodeConfig()
@@ -72,6 +73,8 @@ class AgentDockConfig(pydantic.BaseModel, extra='forbid'):
 ManagerConfig = AgentDockConfig
 
 CONFIG = AgentDockConfig.from_yaml(os.environ.get('CONFIG_FILE', '/app/config.yml'))
+API_TOKEN = os.environ.get("AGENTDOCK_API_TOKEN", "").strip()
+NODE_API_TOKEN = os.environ.get("AGENTDOCK_NODE_API_TOKEN", "").strip()
 logger = logging.getLogger(CONFIG.loggingcfg.logger)
 logger.setLevel(CONFIG.loggingcfg.logger_level)
 

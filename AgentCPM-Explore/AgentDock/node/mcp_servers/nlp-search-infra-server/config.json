@@ -1,10 +1,10 @@
 {
   "google": {
-    "api_key": "AIzaSyCn7FiDikPiMxHzG840RGSLuQtgCbmDAhg",
-    "cse_id": "757e71991ac034e0e"
+    "api_key": "",
+    "cse_id": ""
   },
   "exa": {
-    "api_key": "4bdfafc2-9575-402d-a8df-0f88b2a4b024"
+    "api_key": ""
   },
   "bing": {
     "api_key": "YOUR_BING_API_KEY"
@@ -25,4 +25,4 @@
     "file": "nlp_search_infra.log",
     "rotation": "100 MB"
   }
-} 
+}

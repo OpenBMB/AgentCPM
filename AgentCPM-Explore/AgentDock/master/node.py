@@ -21,8 +21,9 @@ from fastapi import APIRouter, Request, HTTPException, Response, Cookie, Query
 from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
 
-from config import CONFIG, MANAGER_NAME, logger, docker_client
+from config import CONFIG, MANAGER_NAME, NODE_API_TOKEN, logger, docker_client
 from config import DockerContainerNode, DCNodeChecker
+from auth import node_proxy_headers, security_configured
 
 node_router = APIRouter()
 
@@ -120,8 +121,31 @@ def create_container(image_name: Optional[str] = None, port: Optional[int] = Non
         Docker container object
     """
     cfg = deepcopy(CONFIG.node.creation_kwargs)
-    if image_name is not None:
-        cfg["image"] = image_name
+    selected_image = image_name or cfg.get("image")
+    if not security_configured():
+        raise HTTPException(
+            status_code=503,
+            detail="AgentDock API tokens are not configured or are not distinct",
+        )
+    if selected_image not in CONFIG.node.allowed_images:
+        raise HTTPException(status_code=400, detail=f"Image is not allowed: {selected_image}")
+    cfg["image"] = selected_image
+    cfg["privileged"] = False
+    cfg["cap_drop"] = ["ALL"]
+    cfg.pop("cap_add", None)
+    cfg.pop("devices", None)
+    cfg["security_opt"] = ["no-new-privileges:true"]
+    environment = cfg.setdefault("environment", {})
+    if isinstance(environment, dict):
+        environment.pop("AGENTDOCK_API_TOKEN", None)
+        environment["AGENTDOCK_NODE_API_TOKEN"] = NODE_API_TOKEN
+    else:
+        cfg["environment"] = [
+            item
+            for item in environment
+            if not item.startswith(("AGENTDOCK_API_TOKEN=", "AGENTDOCK_NODE_API_TOKEN="))
+        ]
+        cfg["environment"].append(f"AGENTDOCK_NODE_API_TOKEN={NODE_API_TOKEN}")
     
     if 'ports' not in cfg:
         cfg['ports'] = {}
@@ -315,7 +339,7 @@ async def update_node_status(node: DockerContainerNode):
         logger.info(f"Node {node.short_id} image updated: {image_name}")
     
     if node.status == "running":
-        node.ip = 'localhost'
+        node.ip = os.environ.get("DOCKER_HOST_IP", "localhost")
         
         # Get main port mapping
         if f'{CONFIG.node.port}/tcp' in container.attrs['NetworkSettings']['Ports']:
@@ -664,7 +688,10 @@ async def route_to_node(request: Request, node_ip: str, node_port: int, path: st
 
         url = f"http://{node.ip}:{node.port}/{path}"
         logger.info("Request url: " + url)
-        headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
+        try:
+            headers = node_proxy_headers(request)
+        except RuntimeError as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
         
         timeout = httpx.Timeout(10.0, connect=5.0)
         client = httpx.AsyncClient(timeout=timeout)

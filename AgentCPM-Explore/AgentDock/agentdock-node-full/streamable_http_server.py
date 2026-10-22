@@ -23,6 +23,7 @@ from client import MCPClient
 import toml
 from mcp.types import TextContent, ImageContent, EmbeddedResource
 from openai.types.chat import ChatCompletionMessageToolCall
+from auth import auth_middleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, 
@@ -36,6 +37,7 @@ app = FastAPI(
     description="Server exposing MCP tools via streamable-http protocol",
     version="0.0.1"
 )
+app.middleware("http")(auth_middleware)
 
 # Add CORS middleware
 app.add_middleware(
@@ -246,11 +248,11 @@ async def streamable_http_endpoint(request: Request):
     
     # Log request
     logger.info(f"Received request: {request.method} {request.url}")
-    logger.info(f"Headers: {dict(request.headers)}")
-    
-    # Log raw request body
+    logger.info(
+        "Request headers received: %s",
+        {key: "<redacted>" for key in request.headers if key.lower() in {"authorization", "x-api-key", "cookie"}},
+    )
     body_bytes = await request.body()
-    logger.info(f"Raw request body: {body_bytes}")
     
     # Update session activity time
     if session_id in sessions:
@@ -268,7 +270,7 @@ async def streamable_http_endpoint(request: Request):
     # Process request body
     try:
         body = await request.json()
-        logger.info(f"Parsed request body: {body}")
+        logger.debug("Parsed request body: %s", body)
         
         # Extract JSON-RPC request
         jsonrpc = body.get("jsonrpc")

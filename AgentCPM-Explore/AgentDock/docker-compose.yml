@@ -28,11 +28,16 @@ services:
     volumes:
       - ./master:/app
       - /var/run/docker.sock:/var/run/docker.sock
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       MONGO_HOST: agentdock-mongodb
       MONGO_PORT: 27017
       MONGO_USER: ${MONGODB_USERNAME}
       MONGO_PASS: ${MONGODB_PASSWORD}
+      AGENTDOCK_API_TOKEN: ${AGENTDOCK_API_TOKEN}
+      AGENTDOCK_NODE_API_TOKEN: ${AGENTDOCK_NODE_API_TOKEN}
+      DOCKER_HOST_IP: host.docker.internal
     depends_on:
       - agentdock-mongodb
     command: ["--workers", "4", "-t", "600", "-b", "0.0.0.0:8080"]
@@ -90,6 +95,9 @@ services:
       - "8004:8000"  # API port
     environment:
       - PYTHONPATH=/app
+      - AGENTDOCK_NODE_API_TOKEN=${AGENTDOCK_NODE_API_TOKEN}
+      - READ_FILE_LLM_API_KEY=${READ_FILE_LLM_API_KEY:-}
+      - READ_FILE_LLM_BASE_URL=${READ_FILE_LLM_BASE_URL:-}
       - DOCKER_HOST_IP=host.docker.internal
       - NO_PROXY=localhost,127.0.0.1
       - no_proxy=localhost,127.0.0.1
@@ -123,6 +131,9 @@ services:
       - "8014:8000"  # API port
     environment:
       - PYTHONPATH=/app
+      - AGENTDOCK_NODE_API_TOKEN=${AGENTDOCK_NODE_API_TOKEN}
+      - READ_FILE_LLM_API_KEY=${READ_FILE_LLM_API_KEY:-}
+      - READ_FILE_LLM_BASE_URL=${READ_FILE_LLM_BASE_URL:-}
       - DOCKER_HOST_IP=host.docker.internal
       - NO_PROXY=localhost,127.0.0.1
       - no_proxy=localhost,127.0.0.1
@@ -130,7 +141,6 @@ services:
       - JINA_API_KEY=${JINA_API_KEY:-}
       - GOOGLE_SERP_API_KEY=${GOOGLE_SERP_API_KEY:-}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
       # Only mount data directories, not the entire /app
       - ./agentdock-node-explore/data:/app/data
       - ./agentdock-node-explore/filesystem:/app/filesystem

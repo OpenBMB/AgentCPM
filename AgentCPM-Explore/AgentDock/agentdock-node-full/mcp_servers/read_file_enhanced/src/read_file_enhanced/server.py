@@ -23,6 +23,8 @@ from typing import Annotated
 import camelot
 from plugin import register_converters
 import toml
+from pathlib import Path
+from urllib.parse import unquote, urlparse
 
 # Initialize FastMCP server for MarkItDown (SSE)
 mcp = FastMCP("file_reader_enhanced")
@@ -62,32 +64,30 @@ Easily convert and analyze any file type through a unified interface.
     # 对 uri 做特殊处理
     if uri.startswith("file://"):
         # 去掉 file:// 前缀，并应用 root_path
-        file_path = uri.replace("file://", "")
+        file_path = file_uri_to_path(uri)
         file_path = apply_root_path(file_path)
-        uri = f"file://{file_path}"
+        uri = Path(file_path).as_uri()
     elif not (uri.startswith("http://") or uri.startswith("https://") or uri.startswith("data:")):
         # 如果不是标准协议，认为是本地路径
         file_path = apply_root_path(uri)
-        uri = f"file://{file_path}"
+        uri = Path(file_path).as_uri()
 
     # Execute synchronous MarkItDown conversion in thread pool to avoid blocking
-    if uri.startswith("file://") and uri.endswith(".pdf"):
-        markdown = mineru_pdf_to_markdown(uri.replace("file://", ""))
+    if uri.startswith("file://") and Path(file_uri_to_path(uri)).suffix.lower() == ".pdf":
+        markdown = mineru_pdf_to_markdown(file_uri_to_path(uri))
     else:
         md = MarkItDown(
                     enable_plugins=check_plugins_enabled(),
         )
         register_converters(md)
+        llm_settings = llm_config.get(process_type, llm_config["others"])
         try:
             markdown = await asyncio.wait_for(
                 asyncio.to_thread(
                     lambda: md.convert_uri(uri, process_type=process_type,                    
                         llm_prompt=llm_process_prompt,
-                        llm_model=llm_config[process_type]["llm_model"],
-                        llm_client=OpenAI(
-                            base_url=llm_config[process_type]["llm_base_url"],
-                            api_key=llm_config[process_type]["llm_api_key"],
-                        )).markdown,
+                        llm_model=llm_settings["llm_model"],
+                        llm_client=create_llm_client(llm_settings)).markdown,
                 ),
                 timeout=60
             )
@@ -98,13 +98,30 @@ Easily convert and analyze any file type through a unified interface.
 
 
 def apply_root_path(uri: str) -> str:
-    root_path = os.getenv("ROOT_PATH", "")
-    # 仅当原路径不存在时，才应用 root_path
-    if not os.path.exists(uri):
-        if root_path:
-            # 去掉 uri 前面的斜杠，防止 os.path.join 忽略 root_path
-            return os.path.join(root_path, uri.lstrip("/"))
-    return uri
+    root_path = Path(os.getenv("ROOT_PATH") or "/app/data").resolve()
+    requested_path = Path(unquote(uri))
+    candidate = requested_path.resolve() if requested_path.is_absolute() else (root_path / requested_path).resolve()
+    try:
+        candidate.relative_to(root_path)
+    except ValueError as exc:
+        raise ValueError("File path is outside the configured root path") from exc
+    return str(candidate)
+
+
+def file_uri_to_path(uri: str) -> str:
+    parsed = urlparse(uri)
+    if parsed.scheme != "file" or parsed.netloc not in {"", "localhost"}:
+        raise ValueError("Only local file URIs are supported")
+    return unquote(parsed.path)
+
+
+def create_llm_client(settings):
+    if not settings.get("llm_api_key"):
+        return None
+    return OpenAI(
+        base_url=settings["llm_base_url"],
+        api_key=settings["llm_api_key"],
+    )
 
 def check_plugins_enabled() -> bool:
     return os.getenv("MARKITDOWN_ENABLE_PLUGINS", "false").strip().lower() in (
@@ -175,34 +192,35 @@ def mineru_pdf_to_markdown(file_path: str) -> str:
 def load_llm_config(config_path):
     import toml
     config = toml.load(config_path)
+    shared_api_key = os.getenv("READ_FILE_LLM_API_KEY") or config.get("llm_api_key")
+    shared_base_url = os.getenv("READ_FILE_LLM_BASE_URL") or config.get("llm_base_url")
     llm_config = {
         "image_description":{
             "llm_model": config.get("image_llm_model") or "qwen-vl-plus-latest",
-            "llm_base_url": config.get("image_llm_base_url") or config.get("llm_base_url") or "https://dashscope.aliyuncs.com/compatible-mode/v1",
-            "llm_api_key": config.get("image_llm_api_key") or config.get("llm_api_key"),
+            "llm_base_url": os.getenv("READ_FILE_IMAGE_LLM_BASE_URL") or config.get("image_llm_base_url") or shared_base_url or "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "llm_api_key": os.getenv("READ_FILE_IMAGE_LLM_API_KEY") or config.get("image_llm_api_key") or shared_api_key,
         },
         "image_ocr":{
             "llm_model": config.get("ocr_llm_model") or "qwen-vl-ocr-latest",
-            "llm_base_url": config.get("ocr_llm_base_url") or config.get("llm_base_url") or "https://dashscope.aliyuncs.com/compatible-mode/v1",
-            "llm_api_key": config.get("ocr_llm_api_key") or config.get("llm_api_key"),
+            "llm_base_url": os.getenv("READ_FILE_OCR_LLM_BASE_URL") or config.get("ocr_llm_base_url") or shared_base_url or "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "llm_api_key": os.getenv("READ_FILE_OCR_LLM_API_KEY") or config.get("ocr_llm_api_key") or shared_api_key,
         },
         "audio":{
             "llm_model": config.get("audio_llm_model") or "qwen-omni-turbo-latest",
-            "llm_base_url": config.get("audio_llm_base_url") or config.get("llm_base_url") or "https://dashscope.aliyuncs.com/compatible-mode/v1",
-            "llm_api_key": config.get("audio_llm_api_key") or config.get("llm_api_key"),
+            "llm_base_url": os.getenv("READ_FILE_AUDIO_LLM_BASE_URL") or config.get("audio_llm_base_url") or shared_base_url or "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "llm_api_key": os.getenv("READ_FILE_AUDIO_LLM_API_KEY") or config.get("audio_llm_api_key") or shared_api_key,
         },
         "video":{
             "llm_model": config.get("video_llm_model") or "qwen-omni-turbo-latest",
-            "llm_base_url": config.get("video_llm_base_url") or config.get("llm_base_url") or "https://dashscope.aliyuncs.com/compatible-mode/v1",
-            "llm_api_key": config.get("video_llm_api_key") or config.get("llm_api_key"),
+            "llm_base_url": os.getenv("READ_FILE_VIDEO_LLM_BASE_URL") or config.get("video_llm_base_url") or shared_base_url or "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "llm_api_key": os.getenv("READ_FILE_VIDEO_LLM_API_KEY") or config.get("video_llm_api_key") or shared_api_key,
         },
         "others":{
             "llm_model": config.get("llm_model") or "qwen-omni-turbo-latest",
-            "llm_base_url": config.get("llm_base_url") or "https://dashscope.aliyuncs.com/compatible-mode/v1",
-            "llm_api_key": config.get("llm_api_key"),
+            "llm_base_url": shared_base_url or "https://dashscope.aliyuncs.com/compatible-mode/v1",
+            "llm_api_key": shared_api_key,
         }
     }
-    print(llm_config)
     return llm_config
 
 # Main entry point
@@ -241,7 +259,7 @@ def main():
 
     args = parser.parse_args()
 
-    os.environ["ROOT_PATH"] = args.root_path
+    os.environ["ROOT_PATH"] = args.root_path or "/app/data"
 
     global llm_config
     llm_config = load_llm_config(args.config)

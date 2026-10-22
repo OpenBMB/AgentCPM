@@ -12,6 +12,7 @@ import docker
 import json
 import subprocess
 import shutil
+import hmac
 
 from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, Response
@@ -21,10 +22,18 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from beanie.exceptions import RevisionIdWasChanged
 
-from config import CONFIG, logger, MANAGER_NAME, db, docker_client
+from config import CONFIG, NODE_API_TOKEN, logger, MANAGER_NAME, db, docker_client
 from config import DockerContainerNode, DCNodeChecker
 
 from node import node_router, check_nodes_status_loop
+from auth import (
+    AUTH_COOKIE,
+    auth_middleware,
+    configured_token,
+    is_authorized,
+    node_proxy_headers,
+    security_configured,
+)
 
 
 @asynccontextmanager
@@ -117,6 +126,7 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+app.middleware("http")(auth_middleware)
 
 app.include_router(node_router, prefix="/node")
 
@@ -128,6 +138,38 @@ if os.path.exists("static"):
 @app.get("/", response_class=HTMLResponse)
 async def serve_index(request: Request):
     """AgentDock main dashboard page."""
+    if not is_authorized(request):
+        return HTMLResponse(
+            """
+            <!doctype html>
+            <html lang="en">
+            <head><meta charset="utf-8"><title>AgentDock Login</title></head>
+            <body>
+              <form id="login">
+                <label>API token <input id="token" type="password" autocomplete="current-password"></label>
+                <button type="submit">Sign in</button>
+              </form>
+              <p id="error"></p>
+              <script>
+                document.getElementById("login").addEventListener("submit", async (event) => {
+                  event.preventDefault();
+                  const response = await fetch("/auth/login", {
+                    method: "POST",
+                    headers: {"content-type": "application/json"},
+                    body: JSON.stringify({token: document.getElementById("token").value})
+                  });
+                  if (response.ok) {
+                    location.reload();
+                  } else {
+                    document.getElementById("error").textContent = "Invalid token";
+                  }
+                });
+              </script>
+            </body>
+            </html>
+            """,
+            status_code=200,
+        )
     nodes = DockerContainerNode.find_all()
     
     manager_info = {
@@ -152,6 +194,27 @@ async def serve_index(request: Request):
         "manager_info": manager_info,
         "nodes_data": nodes_data
     })
+
+
+@app.post("/auth/login")
+async def login(payload: dict, response: Response):
+    token = configured_token()
+    if not security_configured():
+        raise HTTPException(
+            status_code=503,
+            detail="AgentDock API tokens are not configured or are not distinct",
+        )
+    supplied = str(payload.get("token", ""))
+    if not supplied or not hmac.compare_digest(supplied.encode("utf-8"), token.encode("utf-8")):
+        raise HTTPException(status_code=401, detail="Invalid token")
+    response.set_cookie(
+        key=AUTH_COOKIE,
+        value=token,
+        httponly=True,
+        samesite="lax",
+        secure=os.environ.get("AGENTDOCK_COOKIE_SECURE", "").lower() in {"1", "true", "yes"},
+    )
+    return {"status": "ok"}
 
 
 @app.get('/api/resources/system')
@@ -607,8 +670,10 @@ async def route_to_container_port(request: Request, container_id: str, path: str
             url = f"http://{node.ip}:{mapped_port}/{path}"
         
         logger.info(f"Routing {request.method} request to container {container_id}:{target_port} -> {url}")
-        
-        headers = {k: v for k, v in request.headers.items() if k.lower() != "host"}
+        try:
+            headers = node_proxy_headers(request)
+        except RuntimeError as exc:
+            raise HTTPException(status_code=503, detail=str(exc)) from exc
         timeout = httpx.Timeout(120.0, connect=10.0)
         
         async with httpx.AsyncClient(timeout=timeout) as client:

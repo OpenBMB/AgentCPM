@@ -3,10 +3,21 @@
 
 node:
   health_check: false
+  allowed_images:
+    - agentdock-node-explore:latest
+    - agentdock-node-full:latest
+    - agentdock-node:explore
+    - agentdock-node:full
+    - agentdock-node:explore-cn
+    - agentdock-node:full-cn
+    - sailaoda/agentdock-node-explore:latest
+    - sailaoda/agentdock-node-full:latest
   creation_kwargs:
     image: agentdock-node-explore:latest
     detach: true
-    privileged: true
+    privileged: false
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
     ports:
       8000: null
       8088: null

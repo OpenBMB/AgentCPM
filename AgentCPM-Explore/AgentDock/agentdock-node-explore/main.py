@@ -12,6 +12,7 @@ from client import MCPClient
 from openai.types.chat import ChatCompletionMessageToolCall
 from contextlib import asynccontextmanager
 from mcp.types import TextContent, ImageContent, EmbeddedResource
+from auth import auth_middleware
 
 client: MCPClient
 
@@ -43,6 +44,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+app.middleware("http")(auth_middleware)
 
 
 @app.get("/")

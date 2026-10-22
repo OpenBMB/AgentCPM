@@ -23,6 +23,7 @@ from client import MCPClient
 import toml
 from mcp.types import TextContent, ImageContent, EmbeddedResource
 from openai.types.chat import ChatCompletionMessageToolCall
+from auth import auth_middleware
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, 
@@ -36,6 +37,7 @@ app = FastAPI(
     description="Server exposing MCP tools via SSE protocol",
     version="0.0.1"
 )
+app.middleware("http")(auth_middleware)
 
 # Add CORS middleware
 app.add_middleware(
